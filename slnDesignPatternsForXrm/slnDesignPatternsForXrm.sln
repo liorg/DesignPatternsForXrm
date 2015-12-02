@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lior.Xrm.DataModel", "Lior.Xrm.DataModel\Lior.Xrm.DataModel.csproj", "{7B22C9CE-3D78-4AB6-993C-FCB0506CD4BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lior.Xrm.JobProvider", "Lior.Xrm.JobProvider\Lior.Xrm.JobProvider.csproj", "{4931AF1F-3653-4BB6-8E1B-B02EEF1891C3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lior.Xrm.BussinessLogic", "Lior.Xrm.BussinessLogic\Lior.Xrm.BussinessLogic.csproj", "{39CD183E-2804-4ED2-8B3D-A97499360BE3}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobRetryExample", "Example\Job\JobRetryExample\JobRetryExample.csproj", "{4858E1E1-6AC0-455C-B2DD-619011E28868}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Example", "Example", "{60A3DD09-2EBB-4948-B43D-083EF6328FE1}"
@@ -26,6 +22,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ShareDlls", "ShareDlls", "{
 		ShareDlls\microsoft.xrm.sdk.workflow.dll = ShareDlls\microsoft.xrm.sdk.workflow.dll
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lior.Xrm.JobProvider", "Lior.Xrm.JobProvider\Lior.Xrm.JobProvider.csproj", "{4931AF1F-3653-4BB6-8E1B-B02EEF1891C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lior.Xrm.BussinessLogic", "Lior.Xrm.BussinessLogic\Lior.Xrm.BussinessLogic.csproj", "{39CD183E-2804-4ED2-8B3D-A97499360BE3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,14 +36,6 @@ Global
 		{7B22C9CE-3D78-4AB6-993C-FCB0506CD4BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7B22C9CE-3D78-4AB6-993C-FCB0506CD4BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7B22C9CE-3D78-4AB6-993C-FCB0506CD4BA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4931AF1F-3653-4BB6-8E1B-B02EEF1891C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4931AF1F-3653-4BB6-8E1B-B02EEF1891C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4931AF1F-3653-4BB6-8E1B-B02EEF1891C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4931AF1F-3653-4BB6-8E1B-B02EEF1891C3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{39CD183E-2804-4ED2-8B3D-A97499360BE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{39CD183E-2804-4ED2-8B3D-A97499360BE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{39CD183E-2804-4ED2-8B3D-A97499360BE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{39CD183E-2804-4ED2-8B3D-A97499360BE3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4858E1E1-6AC0-455C-B2DD-619011E28868}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4858E1E1-6AC0-455C-B2DD-619011E28868}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4858E1E1-6AC0-455C-B2DD-619011E28868}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -52,6 +44,14 @@ Global
 		{7903E866-3235-4B50-A11A-7387DCA0A6A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7903E866-3235-4B50-A11A-7387DCA0A6A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7903E866-3235-4B50-A11A-7387DCA0A6A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4931AF1F-3653-4BB6-8E1B-B02EEF1891C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4931AF1F-3653-4BB6-8E1B-B02EEF1891C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4931AF1F-3653-4BB6-8E1B-B02EEF1891C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4931AF1F-3653-4BB6-8E1B-B02EEF1891C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39CD183E-2804-4ED2-8B3D-A97499360BE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39CD183E-2804-4ED2-8B3D-A97499360BE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39CD183E-2804-4ED2-8B3D-A97499360BE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39CD183E-2804-4ED2-8B3D-A97499360BE3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
