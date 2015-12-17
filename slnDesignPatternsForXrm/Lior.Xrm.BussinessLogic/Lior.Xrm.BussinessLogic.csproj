@@ -122,6 +122,7 @@
     <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostTOTALtransportation.cs" />
     <Compile Include="ServiceEventFactory\Factory\IsraelSection\TotalCostMeals.cs" />
     <Compile Include="ServiceEventFactory\Factory\Sundor\CostSunder.cs" />
+    <Compile Include="ServiceEventFactory\Help\HelperEvent.cs" />
     <Compile Include="ServiceEventFactory\Implement\ConsoleEmailTemplate.cs">
       <SubType>Code</SubType>
     </Compile>
