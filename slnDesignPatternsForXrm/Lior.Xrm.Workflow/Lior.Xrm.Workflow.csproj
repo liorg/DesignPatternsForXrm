@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5D4D63D1-504D-43C2-B827-1FCB67022325}</ProjectGuid>
+    <ProjectTypeGuids>{089D5B2A-9C2F-4B6D-9F7B-CFD25BB0B7F4};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Lior.Xrm.Workflow</RootNamespace>
+    <AssemblyName>Lior.Xrm.Workflow</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="microsoft.crm.outlook.sdk">
+      <HintPath>..\ShareDlls\microsoft.crm.outlook.sdk.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.crm.sdk.proxy">
+      <HintPath>..\ShareDlls\microsoft.crm.sdk.proxy.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SharePoint.Client, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ShareDlls\Microsoft.SharePoint.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SharePoint.Client.Runtime, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ShareDlls\Microsoft.SharePoint.Client.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.client">
+      <HintPath>..\ShareDlls\microsoft.xrm.client.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.client.codegeneration">
+      <HintPath>..\ShareDlls\microsoft.xrm.client.codegeneration.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.portal">
+      <HintPath>..\ShareDlls\microsoft.xrm.portal.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.portal.files">
+      <HintPath>..\ShareDlls\microsoft.xrm.portal.files.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.sdk">
+      <HintPath>..\ShareDlls\microsoft.xrm.sdk.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.sdk.deployment">
+      <HintPath>..\ShareDlls\microsoft.xrm.sdk.deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.sdk.workflow">
+      <HintPath>..\ShareDlls\microsoft.xrm.sdk.workflow.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Activities" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Services" />
+    <Reference Include="System.Data.Services.Client" />
+    <Reference Include="System.Data.Services.Design" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Contract\IEmailTemplate.cs">
+      <Link>BL\Contract\IEmailTemplate.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Contract\ISections.cs">
+      <Link>BL\Contract\ISections.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Implement\ConsoleEmailTemplate.cs">
+      <Link>BL\Implement\ConsoleEmailTemplate.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Implement\WFEmailTemplate.cs">
+      <Link>BL\Implement\WFEmailTemplate.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Observer\CallCenterWF.cs">
+      <Link>BL\Observer\CallCenterWF.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Observer\CargoWF.cs">
+      <Link>BL\Observer\CargoWF.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Observer\CashierWF.cs">
+      <Link>BL\Observer\CashierWF.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Observer\CrewsWF.cs">
+      <Link>BL\Observer\CrewsWF.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Observer\CustomerRelationWF.cs">
+      <Link>BL\Observer\CustomerRelationWF.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Observer\FoodWF.cs">
+      <Link>BL\Observer\FoodWF.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Observer\GroupWF.cs">
+      <Link>BL\Observer\GroupWF.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Observer\IsraelWF.cs">
+      <Link>BL\Observer\IsraelWF.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Observer\ScheduleWF.cs">
+      <Link>BL\Observer\ScheduleWF.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Observer\SundorWF.cs">
+      <Link>BL\Observer\SundorWF.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Patterns\Observer.cs">
+      <Link>BL\Patterns\Observer.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\SubjectEmailSender.cs">
+      <Link>BL\SubjectEmailSender.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.DataModel\xrm.cs">
+      <Link>Xrm\xrm.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceEventTeamNotify.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
