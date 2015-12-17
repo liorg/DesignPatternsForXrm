@@ -121,20 +121,36 @@
     <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostTOTALtransportation.cs" />
     <Compile Include="ServiceEventFactory\Factory\IsraelSection\TotalCostMeals.cs" />
     <Compile Include="ServiceEventFactory\Factory\Sundor\CostSunder.cs" />
-    <Compile Include="ServiceEventFactory\Implement\ConsoleEmailTemplate.cs" />
-    <Compile Include="ServiceEventFactory\Implement\WFEmailTemplate.cs" />
+    <Compile Include="ServiceEventFactory\Implement\ConsoleEmailTemplate.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceEventFactory\Implement\WFEmailTemplate.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ServiceEventFactory\IncidentServiceEventCalc.cs" />
-    <Compile Include="ServiceEventFactory\Observer\CallCenterWF.cs" />
+    <Compile Include="ServiceEventFactory\Observer\CallCenterWF.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ServiceEventFactory\Observer\CargoWF.cs" />
-    <Compile Include="ServiceEventFactory\Observer\CashierWF.cs" />
+    <Compile Include="ServiceEventFactory\Observer\CashierWF.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ServiceEventFactory\Observer\CrewsWF.cs" />
-    <Compile Include="ServiceEventFactory\Observer\CustomerRelationWF.cs" />
-    <Compile Include="ServiceEventFactory\Observer\FoodWF.cs" />
-    <Compile Include="ServiceEventFactory\Observer\GroupWF.cs" />
+    <Compile Include="ServiceEventFactory\Observer\CustomerRelationWF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceEventFactory\Observer\FoodWF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceEventFactory\Observer\GroupWF.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ServiceEventFactory\Observer\IsraelWF.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="ServiceEventFactory\Observer\ScheduleWF.cs" />
+    <Compile Include="ServiceEventFactory\Observer\ScheduleWF.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ServiceEventFactory\Observer\SundorWF.cs" />
     <Compile Include="ServiceEventFactory\Patterns\CalcServiceV2.cs" />
     <Compile Include="ServiceEventFactory\Patterns\Observer.cs">
