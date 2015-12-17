@@ -32,8 +32,45 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="microsoft.crm.outlook.sdk">
+      <HintPath>..\ShareDlls\microsoft.crm.outlook.sdk.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.crm.sdk.proxy">
+      <HintPath>..\ShareDlls\microsoft.crm.sdk.proxy.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SharePoint.Client, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ShareDlls\Microsoft.SharePoint.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SharePoint.Client.Runtime, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ShareDlls\Microsoft.SharePoint.Client.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.client">
+      <HintPath>..\ShareDlls\microsoft.xrm.client.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.client.codegeneration">
+      <HintPath>..\ShareDlls\microsoft.xrm.client.codegeneration.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.portal">
+      <HintPath>..\ShareDlls\microsoft.xrm.portal.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.portal.files">
+      <HintPath>..\ShareDlls\microsoft.xrm.portal.files.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.sdk">
+      <HintPath>..\ShareDlls\microsoft.xrm.sdk.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.sdk.deployment">
+      <HintPath>..\ShareDlls\microsoft.xrm.sdk.deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.sdk.workflow">
+      <HintPath>..\ShareDlls\microsoft.xrm.sdk.workflow.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Services" />
+    <Reference Include="System.Data.Services.Client" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,17 +78,151 @@
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="Microsoft.Xrm.Sdk">
-      <HintPath>D:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\IDE\Extensions\Microsoft\Dynamics CRM 2011 Developer Tools\1.0\Microsoft.Xrm.Sdk.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Crm.Sdk.Proxy">
-      <HintPath>D:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\IDE\Extensions\Microsoft\Dynamics CRM 2011 Developer Tools\1.0\Microsoft.Crm.Sdk.Proxy.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Contract\ISections.cs">
+      <Link>BL\Contract\ISections.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Decorator\Base\XrmDecoratorV2.cs">
+      <Link>BL\Decorator\XrmDecoratorV2.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\CallCenter\CallCenterHelper.cs">
+      <Link>BL\Factory\CallCenter\CallCenterHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\CallCenter\CostTotalCallCenter.cs">
+      <Link>BL\Factory\CallCenter\CostTotalCallCenter.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\CallCenter\CostTotalCost1.cs">
+      <Link>BL\Factory\CallCenter\CostTotalCost1.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\CallCenter\CostTotalCost2.cs">
+      <Link>BL\Factory\CallCenter\CostTotalCost2.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\CallCenter\CostTotalCost3.cs">
+      <Link>BL\Factory\CallCenter\CostTotalCost3.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\CallCenter\CostTotalCost4.cs">
+      <Link>BL\Factory\CallCenter\CostTotalCost4.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\CallCenter\CostTotalCost5.cs">
+      <Link>BL\Factory\CallCenter\CostTotalCost5.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\Cashier\CashierHelper.cs">
+      <Link>BL\Factory\Cashier\CashierHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\Cashier\CostTotalCost10.cs">
+      <Link>BL\Factory\Cashier\CostTotalCost10.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\Cashier\CostTotalCost6.cs">
+      <Link>BL\Factory\Cashier\CostTotalCost6.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\Cashier\CostTotalCost7.cs">
+      <Link>BL\Factory\Cashier\CostTotalCost7.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\Cashier\CostTotalCost8.cs">
+      <Link>BL\Factory\Cashier\CostTotalCost8.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\Cashier\CostTotalCost9.cs">
+      <Link>BL\Factory\Cashier\CostTotalCost9.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\Cashier\CostTotalCostCashier.cs">
+      <Link>BL\Factory\Cashier\CostTotalCostCashier.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\Crews\CostCrews.cs">
+      <Link>BL\Factory\Crews\CostCrews.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\CustomerRelations\CostCompensations.cs">
+      <Link>BL\Factory\CustomerRelations\CostCompensations.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\CustomerRelations\CostNumberOfPassengerCompensated.cs">
+      <Link>BL\Factory\CustomerRelations\CostNumberOfPassengerCompensated.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\CustomerRelations\CostTotalPassengerflighttkt.cs">
+      <Link>BL\Factory\CustomerRelations\CostTotalPassengerflighttkt.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\CustomerRelations\TotalNumberOfcasesrelatedtotheFlight.cs">
+      <Link>BL\Factory\CustomerRelations\TotalNumberOfcasesrelatedtotheFlight.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\GroundOperation\CostArrivalFLT.cs">
+      <Link>BL\Factory\GroundOperation\CostArrivalFLT.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\GroundOperation\CostDepartureFLT.cs">
+      <Link>BL\Factory\GroundOperation\CostDepartureFLT.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\GroundOperation\CostGroundOperations.cs">
+      <Link>BL\Factory\GroundOperation\CostGroundOperations.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\Copy of CostForIncidentService.cs">
+      <Link>BL\Factory\IsraelSection\Copy of CostForIncidentService.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\CostBreakfast.cs">
+      <Link>BL\Factory\IsraelSection\CostBreakfast.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\CostBus.cs">
+      <Link>BL\Factory\IsraelSection\CostBus.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\CostCoffeeAndCake.cs">
+      <Link>BL\Factory\IsraelSection\CostCoffeeAndCake.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\CostForIncidentService.cs">
+      <Link>BL\Factory\IsraelSection\CostForIncidentService.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\CostHotMeal.cs">
+      <Link>BL\Factory\IsraelSection\CostHotMeal.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\CostIsraelStation.cs">
+      <Link>BL\Factory\IsraelSection\CostIsraelStation.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\CostNightMostOfTheYear.cs">
+      <Link>BL\Factory\IsraelSection\CostNightMostOfTheYear.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\CostNightSummerAndHolidays.cs">
+      <Link>BL\Factory\IsraelSection\CostNightSummerAndHolidays.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\CostNightWithBreakfast.cs">
+      <Link>BL\Factory\IsraelSection\CostNightWithBreakfast.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\CostNightWithDinner.cs">
+      <Link>BL\Factory\IsraelSection\CostNightWithDinner.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\CostNightWithLunch.cs">
+      <Link>BL\Factory\IsraelSection\CostNightWithLunch.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\CostTaxi.cs">
+      <Link>BL\Factory\IsraelSection\CostTaxi.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\CostTOTALhotels.cs">
+      <Link>BL\Factory\IsraelSection\CostTOTALhotels.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\CostTOTALtransportation.cs">
+      <Link>BL\Factory\IsraelSection\CostTOTALtransportation.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\IsraelSection\TotalCostMeals.cs">
+      <Link>BL\Factory\IsraelSection\TotalCostMeals.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Factory\Sundor\CostSunder.cs">
+      <Link>BL\Factory\Sundor\CostSunder.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\IncidentServiceEventCalc.cs">
+      <Link>BL\IncidentServiceEventCalc.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Patterns\CalcServiceV2.cs">
+      <Link>BL\Patterns\CalcServiceV2.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Patterns\OpenClosedCalculator.cs">
+      <Link>BL\Patterns\OpenClosedCalculator.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.BussinessLogic\ServiceEventFactory\Patterns\ParticipantOnCalculator.cs">
+      <Link>BL\Patterns\ParticipantOnCalculator.cs</Link>
+    </Compile>
+    <Compile Include="..\Lior.Xrm.DataModel\xrm.cs">
+      <Link>Xrm\xrm.cs</Link>
+    </Compile>
+    <Compile Include="PreServiceEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Plugin.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
