@@ -30,8 +30,45 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="microsoft.crm.outlook.sdk">
+      <HintPath>..\ShareDlls\microsoft.crm.outlook.sdk.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.crm.sdk.proxy">
+      <HintPath>..\ShareDlls\microsoft.crm.sdk.proxy.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SharePoint.Client, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ShareDlls\Microsoft.SharePoint.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.SharePoint.Client.Runtime, Version=16.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ShareDlls\Microsoft.SharePoint.Client.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.client">
+      <HintPath>..\ShareDlls\microsoft.xrm.client.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.client.codegeneration">
+      <HintPath>..\ShareDlls\microsoft.xrm.client.codegeneration.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.portal">
+      <HintPath>..\ShareDlls\microsoft.xrm.portal.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.portal.files">
+      <HintPath>..\ShareDlls\microsoft.xrm.portal.files.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.sdk">
+      <HintPath>..\ShareDlls\microsoft.xrm.sdk.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.sdk.deployment">
+      <HintPath>..\ShareDlls\microsoft.xrm.sdk.deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.sdk.workflow">
+      <HintPath>..\ShareDlls\microsoft.xrm.sdk.workflow.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Services" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -39,9 +76,81 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceEventFactory\Contract\IEmailTemplate.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceEventFactory\Contract\ISections.cs" />
+    <Compile Include="ServiceEventFactory\Decorator\Base\XrmDecoratorV2.cs" />
+    <Compile Include="ServiceEventFactory\Factory\CallCenter\CallCenterHelper.cs" />
+    <Compile Include="ServiceEventFactory\Factory\CallCenter\CostTotalCallCenter.cs" />
+    <Compile Include="ServiceEventFactory\Factory\CallCenter\CostTotalCost1.cs" />
+    <Compile Include="ServiceEventFactory\Factory\CallCenter\CostTotalCost2.cs" />
+    <Compile Include="ServiceEventFactory\Factory\CallCenter\CostTotalCost3.cs" />
+    <Compile Include="ServiceEventFactory\Factory\CallCenter\CostTotalCost4.cs" />
+    <Compile Include="ServiceEventFactory\Factory\CallCenter\CostTotalCost5.cs" />
+    <Compile Include="ServiceEventFactory\Factory\Cashier\CashierHelper.cs" />
+    <Compile Include="ServiceEventFactory\Factory\Cashier\CostTotalCost10.cs" />
+    <Compile Include="ServiceEventFactory\Factory\Cashier\CostTotalCost6.cs" />
+    <Compile Include="ServiceEventFactory\Factory\Cashier\CostTotalCost7.cs" />
+    <Compile Include="ServiceEventFactory\Factory\Cashier\CostTotalCost8.cs" />
+    <Compile Include="ServiceEventFactory\Factory\Cashier\CostTotalCost9.cs" />
+    <Compile Include="ServiceEventFactory\Factory\Cashier\CostTotalCostCashier.cs" />
+    <Compile Include="ServiceEventFactory\Factory\Crews\CostCrews.cs" />
+    <Compile Include="ServiceEventFactory\Factory\CustomerRelations\CostCompensations.cs" />
+    <Compile Include="ServiceEventFactory\Factory\CustomerRelations\CostNumberOfPassengerCompensated.cs" />
+    <Compile Include="ServiceEventFactory\Factory\CustomerRelations\CostTotalPassengerflighttkt.cs" />
+    <Compile Include="ServiceEventFactory\Factory\CustomerRelations\TotalNumberOfcasesrelatedtotheFlight.cs" />
+    <Compile Include="ServiceEventFactory\Factory\GroundOperation\CostArrivalFLT.cs" />
+    <Compile Include="ServiceEventFactory\Factory\GroundOperation\CostDepartureFLT.cs" />
+    <Compile Include="ServiceEventFactory\Factory\GroundOperation\CostGroundOperations.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\Copy of CostForIncidentService.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostBreakfast.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostBus.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostCoffeeAndCake.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostForIncidentService.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostHotMeal.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostIsraelStation.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostNightMostOfTheYear.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostNightSummerAndHolidays.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostNightWithBreakfast.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostNightWithDinner.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostNightWithLunch.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostTaxi.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostTOTALhotels.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\CostTOTALtransportation.cs" />
+    <Compile Include="ServiceEventFactory\Factory\IsraelSection\TotalCostMeals.cs" />
+    <Compile Include="ServiceEventFactory\Factory\Sundor\CostSunder.cs" />
+    <Compile Include="ServiceEventFactory\Implement\ConsoleEmailTemplate.cs" />
+    <Compile Include="ServiceEventFactory\Implement\WFEmailTemplate.cs" />
+    <Compile Include="ServiceEventFactory\IncidentServiceEventCalc.cs" />
+    <Compile Include="ServiceEventFactory\Observer\CallCenterWF.cs" />
+    <Compile Include="ServiceEventFactory\Observer\CargoWF.cs" />
+    <Compile Include="ServiceEventFactory\Observer\CashierWF.cs" />
+    <Compile Include="ServiceEventFactory\Observer\CrewsWF.cs" />
+    <Compile Include="ServiceEventFactory\Observer\CustomerRelationWF.cs" />
+    <Compile Include="ServiceEventFactory\Observer\FoodWF.cs" />
+    <Compile Include="ServiceEventFactory\Observer\GroupWF.cs" />
+    <Compile Include="ServiceEventFactory\Observer\IsraelWF.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceEventFactory\Observer\ScheduleWF.cs" />
+    <Compile Include="ServiceEventFactory\Observer\SundorWF.cs" />
+    <Compile Include="ServiceEventFactory\Patterns\CalcServiceV2.cs" />
+    <Compile Include="ServiceEventFactory\Patterns\Observer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ServiceEventFactory\Patterns\OpenClosedCalculator.cs" />
+    <Compile Include="ServiceEventFactory\Patterns\ParticipantOnCalculator.cs" />
+    <Compile Include="ServiceEventFactory\SubjectEmailSender.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Lior.Xrm.DataModel\Lior.Xrm.DataModel.csproj">
+      <Project>{7b22c9ce-3d78-4ab6-993c-fcb0506cd4ba}</Project>
+      <Name>Lior.Xrm.DataModel</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

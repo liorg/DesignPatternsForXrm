@@ -30,8 +30,29 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="microsoft.crm.sdk.proxy">
+      <HintPath>..\ShareDlls\microsoft.crm.sdk.proxy.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.client, Version=5.0.9688.1533, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ShareDlls\microsoft.xrm.client.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.portal, Version=5.0.9688.1533, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ShareDlls\microsoft.xrm.portal.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.sdk, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\ShareDlls\microsoft.xrm.sdk.dll</HintPath>
+    </Reference>
+    <Reference Include="microsoft.xrm.sdk.workflow">
+      <HintPath>..\ShareDlls\microsoft.xrm.sdk.workflow.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Services" />
+    <Reference Include="System.Data.Services.Client" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -39,8 +60,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="xrm.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CreateXRM.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="crmsvcutil.exe" />
+    <Content Include="Guardian.ELAL.XRM.Portal.csproj" />
+    <Content Include="Guardian.ELAL.XRM.Portal.csproj.vspscc" />
+    <Content Include="microsoft.xrm.client.codegeneration.dll" />
+    <Content Include="microsoft.xrm.client.dll" />
+    <Content Include="microsoft.xrm.portal.dll" />
+    <Content Include="microsoft.xrm.sdk.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

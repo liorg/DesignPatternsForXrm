@@ -1,0 +1,1 @@
+crmsvcutil.exe   /username:goffice\lior_g /password:pass@word9 /codeCustomization:"Microsoft.Xrm.Client.CodeGeneration.CodeCustomization, Microsoft.Xrm.Client.CodeGeneration" /url:http://c11elaldev/ELALINTEG/XRMServices/2011/Organization.svc  /out:xrm.cs  /namespace:Lior.Xrm.Xrm /serviceContextName:XrmServiceContext /serviceContextPrefix:Xrm
