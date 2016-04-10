@@ -1,13 +1,36 @@
-﻿USE [JobManager]
+﻿USE [Jobmanager]
 GO
-
-/****** Object:  Table [dbo].[Records]    Script Date: 12/02/2015 10:24:37 ******/
+/****** Object:  StoredProcedure [dbo].[gs_getbarakbydate]    Script Date: 04/10/2016 10:02:45 ******/
 SET ANSI_NULLS ON
 GO
-
 SET QUOTED_IDENTIFIER ON
 GO
-
+--exec gs_getbarakbydate '2015-10-25'
+create PROCEDURE  [dbo].[gs_getbarakbydate]
+	-- Add the parameters for the stored procedure here
+	@dt as datetime
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+SELECT  * from ( SELECT AGENCY, CKDIG, GREGN, AGBRNC, AGSBRN, AGNAM1, ADDRS1, CITY, AGCTRY, PHONE, AGPOST, DATEUP, DATEEN, 
+                      CASE WHEN [DATEUP] != 0 THEN CONVERT(datetime, Stuff(Stuff(REPLICATE('0', 8 - LEN([DATEUP])) + CAST([DATEUP] AS varchar), 5, 0, '.'), 3, 0, '.'), 104) ELSE NULL 
+                      END AS modfiedon, 
+                      CASE WHEN [DATEEN] != 0 THEN CONVERT(datetime, Stuff(Stuff(REPLICATE('0', 8 - LEN([DATEEN])) + CAST([DATEEN] AS varchar), 5, 0, '.'), 3, 0, '.'), 104) ELSE NULL END 
+                      AS createdon
+FROM         dbo.AGENCY_PFRAAG01_FROM_BARAK ) as b
+   where  ((b.createdon is not null and b.createdon>=@dt) 
+   or 
+  (b.modfiedon is not null and b.modfiedon>=@dt)
+   )
+END
+GO
+/****** Object:  Table [dbo].[Records]    Script Date: 04/10/2016 10:02:44 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 CREATE TABLE [dbo].[Records](
 	[ID] [uniqueidentifier] ROWGUIDCOL  NOT NULL,
 	[ModelXml] [xml] NULL,
@@ -17,63 +40,39 @@ CREATE TABLE [dbo].[Records](
 	[JobId] [uniqueidentifier] NULL,
 	[Retry] [int] NULL,
 	[ModelType] [nvarchar](100) NULL,
-	[Action] [nvarchar](500) NULL
+	[Action] [nvarchar](500) NULL,
+ CONSTRAINT [PK_Records] PRIMARY KEY CLUSTERED 
+(
+	[ID] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY]
-
 GO
-
-ALTER TABLE [dbo].[Records] ADD  CONSTRAINT [DF_Records_ID]  DEFAULT (newid()) FOR [ID]
-GO
-
-USE [JobManager]
-GO
-
-/****** Object:  Table [dbo].[Jobs]    Script Date: 12/02/2015 10:24:42 ******/
+/****** Object:  Table [dbo].[JobStatus]    Script Date: 04/10/2016 10:02:44 ******/
 SET ANSI_NULLS ON
 GO
-
 SET QUOTED_IDENTIFIER ON
 GO
-
+CREATE TABLE [dbo].[JobStatus](
+	[StatusId] [int] NOT NULL,
+	[StatusName] [nvarchar](50) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Jobs]    Script Date: 04/10/2016 10:02:44 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 CREATE TABLE [dbo].[Jobs](
 	[JobId] [uniqueidentifier] ROWGUIDCOL  NOT NULL,
 	[JobName] [nvarchar](50) NULL,
 	[MaxRetries] [int] NULL
 ) ON [PRIMARY]
-
 GO
-
-ALTER TABLE [dbo].[Jobs] ADD  CONSTRAINT [DF_Jobs_JobId]  DEFAULT (newid()) FOR [JobId]
-GO
-
-
-USE [JobManager]
-GO
-
-/****** Object:  Table [dbo].[JobStatus]    Script Date: 12/02/2015 10:24:54 ******/
+/****** Object:  Table [dbo].[JobHistory]    Script Date: 04/10/2016 10:02:44 ******/
 SET ANSI_NULLS ON
 GO
-
 SET QUOTED_IDENTIFIER ON
 GO
-
-CREATE TABLE [dbo].[JobStatus](
-	[StatusId] [int] NOT NULL,
-	[StatusName] [nvarchar](50) NULL
-) ON [PRIMARY]
-
-GO
-
-USE [JobManager]
-GO
-
-/****** Object:  Table [dbo].[JobHistory]    Script Date: 12/02/2015 10:25:15 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
 CREATE TABLE [dbo].[JobHistory](
 	[HistoryId] [uniqueidentifier] ROWGUIDCOL  NOT NULL,
 	[StartedAt] [datetime] NULL,
@@ -85,264 +84,79 @@ CREATE TABLE [dbo].[JobHistory](
 	[Inserted] [int] NULL,
 	[Updated] [int] NULL,
 	[NoUpdated] [int] NULL,
-	[Succeeded] [int] NULL
+	[Succeeded] [int] NULL,
+ CONSTRAINT [PK_JobHistory] PRIMARY KEY CLUSTERED 
+(
+	[HistoryId] ASC
+)WITH (PAD_INDEX  = OFF, STATISTICS_NORECOMPUTE  = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS  = ON, ALLOW_PAGE_LOCKS  = ON) ON [PRIMARY]
 ) ON [PRIMARY]
-
 GO
-
-ALTER TABLE [dbo].[JobHistory] ADD  CONSTRAINT [DF_JobHistory_HistoryId]  DEFAULT (newid()) FOR [HistoryId]
-GO
-
-
-USE [JobManager]
-GO
-
-/****** Object:  StoredProcedure [dbo].[GS_getFaildRecords]    Script Date: 12/02/2015 10:26:18 ******/
+/****** Object:  StoredProcedure [dbo].[GS_UpdateRecord]    Script Date: 04/10/2016 10:02:45 ******/
 SET ANSI_NULLS ON
 GO
-
 SET QUOTED_IDENTIFIER ON
 GO
-
 -- =============================================
 -- Author:		<Author,,Name>
 -- Create date: <Create Date,,>
 -- Description:	<Description,,>
 -- =============================================
-
-
-CREATE PROCEDURE [dbo].[GS_getFaildRecords]
-	@JobId uniqueidentifier
-AS
-BEGIN
-	SET NOCOUNT ON;
-	SELECT  R.ID,
-			R.ModelXml,
-			R.StatusId,
-			R.CreatedOn,
-			R.ModifiedOn,
-			R.Retry,
-			R.JobId,
-			R.ModelType
-			into #t
-	FROM dbo.Records R
-	INNER JOIN dbo.Jobs J
-		ON R.JobId=J.JobId
-	WHERE R.JobId = @JobId 
-	AND R.Retry = J.MaxRetries 
-	AND R.StatusId = 4 --Failed
-	
-	update RD 
-	SET RD.Retry=#t.Retry+1
-	FROM dbo.Records RD
-	inner join #t
-	on #t.ID=RD.ID
-	
-	
-	select * from #t
-	
-END
-
-GO
-USE [JobManager]
-GO
-
-/****** Object:  StoredProcedure [dbo].[GS_GetJobIdByJobName]    Script Date: 12/02/2015 10:26:29 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
--- =============================================
--- Author:		<Author,,Name>
--- Create date: <Create Date,,>
--- Description:	<Description,,>
--- =============================================
-CREATE PROCEDURE [dbo].[GS_GetJobIdByJobName]
+CREATE PROCEDURE [dbo].[GS_UpdateRecord]
 	-- Add the parameters for the stored procedure here
-	@jobName nvarchar(100)
+@status int,@recordid uniqueidentifier, @retry int=null
+,@action nvarchar(200)=null, @ModelXml xml=null
 AS
 BEGIN
-SELECT top 1 [JobId]
-  FROM [JobManager].[dbo].[Jobs]
-where [JobName]=@jobName
-
-
-
-END
-
-GO
-USE [JobManager]
-GO
-
-/****** Object:  StoredProcedure [dbo].[GS_GetJobIdByName]    Script Date: 12/02/2015 10:26:40 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
--- exec GS_InsertRecordJob @jobName='XX1',@MaxRetries=45,@ModelXml='<root></root>',@ModelTypeXml='t'
--- EXEC GS_GetJobIdByName 'XX'
-CREATE PROCEDURE [dbo].[GS_GetJobIdByName]
-	@jobName nvarchar(300),@MaxRetries int=10
-AS
-BEGIN
-	
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
-	DECLARE @JobId uniqueidentifier;
-	EXEC GS_JobAddIfNotExist @JobId=@JobId output,@MaxRetries=@MaxRetries ,@jobName= @jobName;
-	
+	UPDATE [dbo].[Records]
+    SET [StatusId] =@status
+	  ,[ModifiedOn] = getdate()
+	  ,[Retry] = ISNULL(@retry,[Retry]) 
+	  ,[Action] = ISNULL(@action,[Action])
+	  ,[modelxml]= ISNULL(@ModelXml,[modelxml])
+	WHERE [ID] = @recordid
+
 END
-
 GO
-USE [JobManager]
-GO
-
-/****** Object:  StoredProcedure [dbo].[GS_GetLastJobDate]    Script Date: 12/02/2015 10:26:45 ******/
+/****** Object:  StoredProcedure [dbo].[GS_UpdateJobHistory]    Script Date: 04/10/2016 10:02:45 ******/
 SET ANSI_NULLS ON
 GO
-
 SET QUOTED_IDENTIFIER ON
 GO
-
--- =============================================
--- Author:		<Author,,Name>
--- Create date: <Create Date,,>
--- Description:	<Description,,>
--- =============================================
--- exec  [dbo].[GS_GetLastJobDate] 'SurveyInterface1.0.0.0'
-CREATE PROCEDURE [dbo].[GS_GetLastJobDate]
-	@JobName nvarchar(50)
+CREATE PROC [dbo].[GS_UpdateJobHistory]
+@id uniqueidentifier
+,@total int=null, @noupdate int=null,
+@update int=null,@insert int=null,
+@success int=null,
+@failed int=null
 AS
+
 BEGIN
-	SET NOCOUNT ON;
-
-    SELECT TOP 1 StartedAt
-    FROM dbo.JobHistory H
-    INNER JOIN dbo.Jobs J
-		ON H.JobId = J.JobId
-    WHERE J.JobName = @JobName
-    ORDER BY H.StartedAt desc
-END
-
-GO
-USE [JobManager]
-GO
-
-/****** Object:  StoredProcedure [dbo].[GS_getRecordsByJobId]    Script Date: 12/02/2015 10:26:54 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
--- =============================================
--- Author:		<Author,,Name>
--- Create date: <Create Date,,>
--- Description:	<Description,,>
--- =============================================
-
---exec [dbo].[GS_getRecordsByJobId] 'de9a6f4e-695d-41fa-bae7-d4965a49c380'
-CREATE PROCEDURE [dbo].[GS_getRecordsByJobId]
-	@JobId uniqueidentifier
-AS
-BEGIN
-	SET NOCOUNT ON;
-	SELECT  R.ID,
-			R.ModelXml,
-			R.StatusId,
-			R.CreatedOn,
-			R.ModifiedOn,
-			R.Retry,
-			R.JobId,
-			R.ModelType
-	FROM dbo.Records R
-	INNER JOIN dbo.Jobs J
-		ON R.JobId=J.JobId
-	WHERE R.JobId = @JobId AND 
-	R.Retry < J.MaxRetries 
-	AND (R.StatusId = 0 or R.StatusId = 4)
-
- 
-END
-
-GO
-USE [JobManager]
-GO
-
-/****** Object:  StoredProcedure [dbo].[GS_InsertJobHistory]    Script Date: 12/02/2015 10:27:00 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-CREATE proc [dbo].[GS_InsertJobHistory]
-@jobid uniqueidentifier
-as
-begin
-declare @op table
+DECLARE @op TABLE
 (
     ColGuid uniqueidentifier
 )
 
-INSERT INTO dbo.JobHistory
-           (StartedAt
-           ,JobId)
-   OUTPUT INSERTED.HistoryId  into @op
-     VALUES
-           (getdate()
-           ,@jobid)
-
-
-select o.ColGuid from @op o
-
-end
-
-GO
-USE [JobManager]
-GO
-
-/****** Object:  StoredProcedure [dbo].[GS_InsertRecordJob]    Script Date: 12/02/2015 10:27:06 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
--- exec GS_InsertRecordJob @jobName='XX1',@MaxRetries=45,@ModelXml='<root></root>',@ModelTypeXml='t'
--- EXEC GS_JobAddIfNotExist 'XX'
-CREATE PROCEDURE [dbo].[GS_InsertRecordJob]
-	@jobName nvarchar(300),@MaxRetries int=10,@Id uniqueidentifier=null, @ModelXml xml='',@StatusId int=0,@ModelTypeXml nvarchar(500)='',@Retry int =0
-AS
-BEGIN
-	
-	SET NOCOUNT ON;
-	declare @JobId uniqueidentifier;
-	exec GS_JobAddIfNotExist @JobId =@JobId output,@MaxRetries=@MaxRetries ,@jobName= @jobName;
-	if(@Id is null)
-	begin
-	INSERT INTO dbo.Records
-		(ModelXml, StatusId, CreatedOn, ModifiedOn, Retry, JobId, ModelType)
-     VALUES
-           (@ModelXml ,@StatusId,GETDATE() ,GETDATE()  ,@Retry  ,@JobId  ,@ModelTypeXml)
-   end
+UPDATE dbo.JobHistory
+   SET EndedAt = getdate()
+      ,TotalRecords = isnull(@total,TotalRecords)
+      ,NoUpdated =  isnull(@noupdate,NoUpdated)
+      ,Updated =  isnull(@update,Updated)
+      ,Inserted = isnull(@insert,Inserted)
+      ,Succeeded = isnull(@success,Succeeded)
+      ,Failed = isnull(@failed,Failed)
+      ,[Status] = 2
+ WHERE HistoryId = @id
 
 END
-
 GO
-USE [JobManager]
-GO
-
-/****** Object:  StoredProcedure [dbo].[GS_JobAddIfNotExist]    Script Date: 12/02/2015 10:27:11 ******/
+/****** Object:  StoredProcedure [dbo].[GS_JobAddIfNotExist]    Script Date: 04/10/2016 10:02:45 ******/
 SET ANSI_NULLS ON
 GO
-
 SET QUOTED_IDENTIFIER ON
 GO
-
 -- declare @JobId uniqueidentifier;exec GS_JobAddIfNotExist @JobId =@JobId output,@MaxRetries=56 ,@jobName= 'sggx'; 
 CREATE PROCEDURE [dbo].[GS_JobAddIfNotExist]
 	-- Add the parameters for the stored procedure here
@@ -392,88 +206,325 @@ declare @op table
   END
   SELECT @JobId,@MaxRetries
 END
-
 GO
-
-USE [JobManager]
-GO
-
-/****** Object:  StoredProcedure [dbo].[GS_UpdateJobHistory]    Script Date: 12/02/2015 10:27:18 ******/
+/****** Object:  StoredProcedure [dbo].[GS_GetJobIdByJobName]    Script Date: 04/10/2016 10:02:45 ******/
 SET ANSI_NULLS ON
 GO
-
 SET QUOTED_IDENTIFIER ON
 GO
-
-CREATE PROC [dbo].[GS_UpdateJobHistory]
-@id uniqueidentifier
-,@total int=null, @noupdate int=null,
-@update int=null,@insert int=null,
-@success int=null,
-@failed int=null
-AS
-
-BEGIN
-DECLARE @op TABLE
-(
-    ColGuid uniqueidentifier
-)
-
-UPDATE dbo.JobHistory
-   SET EndedAt = getdate()
-      ,TotalRecords = isnull(@total,TotalRecords)
-      ,NoUpdated =  isnull(@noupdate,NoUpdated)
-      ,Updated =  isnull(@update,Updated)
-      ,Inserted = isnull(@insert,Inserted)
-      ,Succeeded = isnull(@success,Succeeded)
-      ,Failed = isnull(@failed,Failed)
-      ,[Status] = 2
- WHERE HistoryId = @id
-
-END
-
-GO
-
-USE [JobManager]
-GO
-
-/****** Object:  StoredProcedure [dbo].[GS_UpdateRecord]    Script Date: 12/02/2015 10:27:24 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
 -- =============================================
 -- Author:		<Author,,Name>
 -- Create date: <Create Date,,>
 -- Description:	<Description,,>
 -- =============================================
-CREATE PROCEDURE [dbo].[GS_UpdateRecord]
+CREATE PROCEDURE [dbo].[GS_GetJobIdByJobName]
 	-- Add the parameters for the stored procedure here
-@status int,@recordid uniqueidentifier, @retry int=null
-,@action nvarchar(200)=null, @ModelXml xml=null
+	@jobName nvarchar(100)
 AS
 BEGIN
-	-- SET NOCOUNT ON added to prevent extra result sets from
-	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
-	UPDATE [dbo].[Records]
-    SET [StatusId] =@status
-	  ,[ModifiedOn] = getdate()
-	  ,[Retry] = ISNULL(@retry,[Retry]) 
-	  ,[Action] = ISNULL(@action,[Action])
-	  ,[modelxml]= ISNULL(@ModelXml,[modelxml])
-	WHERE [ID] = @recordid
+SELECT top 1 [JobId]
+  FROM [JobManager].[dbo].[Jobs]
+where [JobName]=@jobName
+
+
 
 END
-
 GO
+/****** Object:  StoredProcedure [dbo].[GS_getFaildRecords_20151229_2]    Script Date: 04/10/2016 10:02:45 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
 
 
+create PROCEDURE [dbo].[GS_getFaildRecords_20151229_2]
+	@JobId uniqueidentifier
+AS
+BEGIN
+	SET NOCOUNT ON;
+	SELECT  R.ID,
+			R.ModelXml,
+			R.StatusId,
+			R.CreatedOn,
+			R.ModifiedOn,
+			R.Retry,
+			R.JobId,
+			R.ModelType
+	FROM dbo.Records R
+	INNER JOIN dbo.Jobs J
+		ON R.JobId=J.JobId
+	WHERE R.JobId = @JobId 
+	AND R.Retry = J.MaxRetries 
+	AND R.StatusId = 4 --Failed
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[GS_getFaildRecords_20151229]    Script Date: 04/10/2016 10:02:45 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
 
 
+CREATE PROCEDURE [dbo].[GS_getFaildRecords_20151229]
+	@JobId uniqueidentifier
+AS
+BEGIN
+	SET NOCOUNT ON;
+	SELECT  R.ID,
+			R.ModelXml,
+			R.StatusId,
+			R.CreatedOn,
+			R.ModifiedOn,
+			R.Retry,
+			R.JobId,
+			R.ModelType
+	FROM dbo.Records R
+	INNER JOIN dbo.Jobs J
+		ON R.JobId=J.JobId
+	WHERE R.JobId = @JobId 
+	AND R.Retry = J.MaxRetries 
+	AND R.StatusId = 4 --Failed
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[GS_getFaildRecords]    Script Date: 04/10/2016 10:02:45 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
 
 
+CREATE PROCEDURE [dbo].[GS_getFaildRecords]
+	@JobId uniqueidentifier
+AS
+BEGIN
+	SET NOCOUNT ON;
+	--SELECT  R.ID,
+	--		R.ModelXml,
+	--		R.StatusId,
+	--		R.CreatedOn,
+	--		R.ModifiedOn,
+	--		R.Retry,
+	--		R.JobId,
+	--		R.ModelType
+	--FROM dbo.Records R
+	--INNER JOIN dbo.Jobs J
+	--	ON R.JobId=J.JobId
+	--WHERE R.JobId = @JobId 
+	--AND R.Retry = J.MaxRetries 
+	--AND R.StatusId = 4 --Failed
+	
+	SELECT  R.ID,
+			R.ModelXml,
+			R.StatusId,
+			R.CreatedOn,
+			R.ModifiedOn,
+			R.Retry,
+			R.JobId,
+			R.ModelType
+			into #t
+	FROM dbo.Records R
+	INNER JOIN dbo.Jobs J
+		ON R.JobId=J.JobId
+	WHERE R.JobId = @JobId 
+	AND R.Retry = J.MaxRetries 
+	AND R.StatusId = 4 --Failed
+	
+	update RD 
+	SET RD.Retry=#t.Retry+1
+	FROM dbo.Records RD
+	inner join #t
+	on #t.ID=RD.ID
+	
+	
+	select * from #t
+	
+END
+
+--GO
+--ALTER TABLE [dbo].[Jobs] ADD  CONSTRAINT [DF_Jobs_JobId]  DEFAULT (newid()) FOR [JobId]
+--GO
+--ALTER TABLE [dbo].[Records] ADD  CONSTRAINT [DF_Records_ID]  DEFAULT (newid()) FOR [ID]
+GO
+/****** Object:  StoredProcedure [dbo].[gs_find]    Script Date: 04/10/2016 10:02:45 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+/****** Script for SelectTopNRows command from SSMS  ******/
+
+create proc [dbo].[gs_find] 
+as
+begin
+SELECT [ID],
+ModelXml,[ModifiedOn],
+ModelXml.value('(/ContactUsGeneric//AccountId/text())[1]', 'nvarchar(max)') as accountid
+  FROM [Jobmanager].[dbo].[Records]
+  where JobId='7C2732AC-C8D4-41CA-9294-1CC90D7F02CC'
+  --and [ModifiedOn]>'2015-03-28 8:30:00.000'
+ -- and [ModifiedOn]<'2015-03-28 15:32:00.000'
+  and  ModelXml.exist('(/ContactUsGeneric[AccountId/text()="a3ca6f94-d8f4-e511-8fec-005056b70068"])')=1
+
+  ORDER BY [CreatedOn] DESC
+--96C4A755-7EA4-E111-8B98-005056B70068
+--select lower('A3CA6F94-D8F4-E511-8FEC-005056B70068')
+--Yyy  Yyyy
+--<http://crm/ELAL/main.aspx?etc=1&extraqs=formid%3db053a39a-041a-4356-acef-ddf00182762b&id=%7bA3CA6F94-D8F4-E511-8FEC-005056B70068%7d&pagetype=entityrecord>
+
+end
+GO
+/****** Object:  StoredProcedure [dbo].[GS_InsertJobHistory]    Script Date: 04/10/2016 10:02:45 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE proc [dbo].[GS_InsertJobHistory]
+@jobid uniqueidentifier
+as
+begin
+declare @op table
+(
+    ColGuid uniqueidentifier
+)
+
+INSERT INTO dbo.JobHistory
+           (StartedAt
+           ,JobId)
+   OUTPUT INSERTED.HistoryId  into @op
+     VALUES
+           (getdate()
+           ,@jobid)
 
 
+select o.ColGuid from @op o
+
+end
+GO
+/****** Object:  StoredProcedure [dbo].[GS_getRecordsByJobId]    Script Date: 04/10/2016 10:02:45 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+
+
+CREATE PROCEDURE [dbo].[GS_getRecordsByJobId]
+	@JobId uniqueidentifier
+AS
+BEGIN
+	SET NOCOUNT ON;
+	SELECT  R.ID,
+			R.ModelXml,
+			R.StatusId,
+			R.CreatedOn,
+			R.ModifiedOn,
+			R.Retry,
+			R.JobId,
+			R.ModelType
+	FROM dbo.Records R
+	INNER JOIN dbo.Jobs J
+		ON R.JobId=J.JobId
+	WHERE R.JobId = @JobId 
+	AND R.Retry < J.MaxRetries 
+	AND (R.StatusId = 0 or R.StatusId = 4)
+
+ 
+END
+GO
+/****** Object:  StoredProcedure [dbo].[GS_GetLastJobDate]    Script Date: 04/10/2016 10:02:45 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+-- exec  [dbo].[GS_GetLastJobDate] 'SurveyInterface1.0.0.0'
+CREATE PROCEDURE [dbo].[GS_GetLastJobDate]
+	@JobName nvarchar(50)
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+    SELECT TOP 1 StartedAt
+    FROM dbo.JobHistory H
+    INNER JOIN dbo.Jobs J
+		ON H.JobId = J.JobId
+    WHERE J.JobName = @JobName
+    ORDER BY H.StartedAt desc
+END
+GO
+/****** Object:  StoredProcedure [dbo].[GS_GetJobIdByName]    Script Date: 04/10/2016 10:02:45 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- exec GS_InsertRecordJob @jobName='XX1',@MaxRetries=45,@ModelXml='<root></root>',@ModelTypeXml='t'
+-- EXEC GS_GetJobIdByName 'XX'
+CREATE PROCEDURE [dbo].[GS_GetJobIdByName]
+	@jobName nvarchar(300),@MaxRetries int=10
+AS
+BEGIN
+	
+	SET NOCOUNT ON;
+	DECLARE @JobId uniqueidentifier;
+	EXEC GS_JobAddIfNotExist @JobId=@JobId output,@MaxRetries=@MaxRetries ,@jobName= @jobName;
+	
+END
+GO
+/****** Object:  StoredProcedure [dbo].[GS_InsertRecordJob]    Script Date: 04/10/2016 10:02:45 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- exec GS_InsertRecordJob @jobName='XX1',@MaxRetries=45,@ModelXml='<root></root>',@ModelTypeXml='t'
+-- EXEC GS_JobAddIfNotExist 'XX'
+CREATE PROCEDURE [dbo].[GS_InsertRecordJob]
+	@jobName nvarchar(300),@MaxRetries int=10,@Id uniqueidentifier=null, @ModelXml xml='',@StatusId int=0,@ModelTypeXml nvarchar(500)='',@Retry int =0
+AS
+BEGIN
+	
+	SET NOCOUNT ON;
+	declare @JobId uniqueidentifier;
+	exec GS_JobAddIfNotExist @JobId =@JobId output,@MaxRetries=@MaxRetries ,@jobName= @jobName;
+	if(@Id is null)
+	begin
+	INSERT INTO dbo.Records
+		(ModelXml, StatusId, CreatedOn, ModifiedOn, Retry, JobId, ModelType)
+     VALUES
+           (@ModelXml ,@StatusId,GETDATE() ,GETDATE()  ,@Retry  ,@JobId  ,@ModelTypeXml)
+   end
+
+END
+GO
+/****** Object:  Default [DF_JobHistory_HistoryId]    Script Date: 04/10/2016 10:02:44 ******/
+ALTER TABLE [dbo].[JobHistory] ADD  CONSTRAINT [DF_JobHistory_HistoryId]  DEFAULT (newid()) FOR [HistoryId]
+GO
+/****** Object:  Default [DF_Jobs_JobId]    Script Date: 04/10/2016 10:02:44 ******/
+ALTER TABLE [dbo].[Jobs] ADD  CONSTRAINT [DF_Jobs_JobId]  DEFAULT (newid()) FOR [JobId]
+GO
+/****** Object:  Default [DF_Records_ID]    Script Date: 04/10/2016 10:02:44 ******/
+ALTER TABLE [dbo].[Records] ADD  CONSTRAINT [DF_Records_ID]  DEFAULT (newid()) FOR [ID]
+GO
