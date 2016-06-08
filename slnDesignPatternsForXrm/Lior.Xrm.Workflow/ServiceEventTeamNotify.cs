@@ -15,6 +15,7 @@ namespace Lior.Xrm.Workflow
     using Microsoft.Crm.Sdk.Messages;
     using Lior.Xrm.Xrm;
     using Lior.Xrm.BusinessUnit.BL.ServiceEventFactory;
+    using Lior.Xrm.Workflow.BL;
 
     public sealed class ServiceEventTeamNotify : CodeActivity
     {
@@ -68,7 +69,7 @@ namespace Lior.Xrm.Workflow
 
                 SubjectEmailSender email = new SubjectEmailSender(service, new_incidentservice);
 
-                HelperEvent helper = new HelperEvent(service, new_incidentservice);
+               HelperEvent helper = new HelperEvent(service, new_incidentservice);
                 var parameters = helper.GetParamters();
                 var originalFlight = helper.GetOriginalFlight();
                 EntityReference emailTemplate = EmailTemplate.Get<EntityReference>(executionContext);
