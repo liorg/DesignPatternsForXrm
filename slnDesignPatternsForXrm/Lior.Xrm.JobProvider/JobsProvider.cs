@@ -210,12 +210,24 @@ namespace Lior.Xrm.JobsProvider
 
         public void SetRecord(T job)
         {
-            var configJob = commandJobHandler.CofigurationJob;
-            runningJob.JobId = GetJobIdByJobName();
-            if (runningJob.JobId == null)
-                throw new ArgumentNullException("there is no any jobid for " + GetFullJobNameByCofigurationJob(configJob));
+           
 
-            InsertRecordJob(job, configJob);
+            try
+            {
+                _errorHandler.StartWritingErrors(commandJobHandler);
+                var configJob = commandJobHandler.CofigurationJob;
+                runningJob.JobId = GetJobIdByJobName();
+                if (runningJob.JobId == null)
+                    throw new ArgumentNullException("there is no any jobid for " + GetFullJobNameByCofigurationJob(configJob));
+
+                InsertRecordJob(job, configJob);
+                _errorHandler.FinishWritingErrors(runningJob);
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.WriteLog("JobProvider=>Run()", ex.StackTrace, EventLogEntryType.Error);
+                Console.WriteLine("Run ex " + ex.Message);
+            }
         }
 
         private void InsertRecordJob(T job, CofigurationJob configJob)
