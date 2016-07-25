@@ -140,7 +140,11 @@
       <Link>Xrm\xrm.cs</Link>
     </Compile>
     <Compile Include="BL\documentsPrinter\TaskDocumentsPrinter.cs" />
+    <Compile Include="BL\FetchXmlDynamic\DocLogic.cs" />
+    <Compile Include="BL\FetchXmlDynamic\DocModel.cs" />
+    <Compile Include="BL\FetchXmlDynamic\LoadDocParametersFactory.cs" />
     <Compile Include="BL\HelperEvent.cs" />
+    <Compile Include="DocsFindMissions.cs" />
     <Compile Include="Print.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceEventTeamNotify.cs" />
