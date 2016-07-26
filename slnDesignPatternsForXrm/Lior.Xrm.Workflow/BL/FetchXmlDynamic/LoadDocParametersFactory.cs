@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Lior.Xrm.Workflow.BL
 {
-
+    //create absract factory
     public abstract class LoadDocParametersFactory
     {
         protected Entity _target;

@@ -49,7 +49,7 @@ namespace Lior.Xrm.Workflow.BL
 
 
         }
-
+        //create fluuint method
         class BuilderFetch
         {
             Dictionary<string, bool> _conditions;
@@ -86,12 +86,6 @@ namespace Lior.Xrm.Workflow.BL
                     _xml = _xml + @"</filter>";
 
                 }
-
-                //<condition attribute = 'new_taradin_ind' operator= 'eq' value = '1' />
-                //<condition attribute = 'new_loan_ind' operator= 'eq' value = '1' />
-                //<condition attribute = 'new_ready_for_delivery_ind' operator= 'eq' value = '1' />
-                //<condition attribute = 'new_testdrive_ind' operator= 'eq' value = '1' />
-
                 _xml = _xml + @"<link-entity name = 'new_doc_type' from = 'new_doc_typeid' to = 'new_doc_type' visible = 'false' link-type = 'inner' alias = 'aa' >
                                <attribute name = 'new_description' />
                                <attribute name = 'new_name' />
