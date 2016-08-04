@@ -57,6 +57,7 @@ namespace printpdf.Utils
 
         public static void Print(Settings settings, string file2Print, Action<string> log)
         {
+            _retry = 0;
             bool hasJob = PrinterUtil.HasJobs();
             if (hasJob)
             {
