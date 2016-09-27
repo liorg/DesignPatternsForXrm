@@ -20,11 +20,4 @@ namespace Lior.Xrm.JobsProvider.DataModel
         bool EnsureCanWriteError();
         Guid? GetLogID();
     }
-    public interface IProccessErrorHandler<T> where T : JobRecordBase
-    {
-        void StartWritingErrors(ICommandJobBase<T> commandJob);
-        void WriteLog(T model, string log, EventLogEntryType logType);
-        void WriteLog(string modelXml, string log, EventLogEntryType logType);
-        void FinishWritingErrors(RunningJob jobDetatil);
-    }
 }

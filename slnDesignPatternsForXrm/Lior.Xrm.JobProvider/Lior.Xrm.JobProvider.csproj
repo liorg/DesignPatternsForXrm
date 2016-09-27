@@ -55,11 +55,12 @@
     <Compile Include="Contract\Command\IChunkData.cs" />
     <Compile Include="Contract\Command\ICommandJobBase.cs" />
     <Compile Include="Contract\Command\IFetchFilterXmlObjects.cs" />
+    <Compile Include="Contract\Error\IProccessCrmLogHandler.cs" />
     <Compile Include="DataModel\ChunkData.cs" />
     <Compile Include="DataModel\CofigurationJob.cs" />
     <Compile Include="Contract\Command\ICommandJob.cs" />
     <Compile Include="Contract\IJobProvider.cs" />
-    <Compile Include="Contract\IProccessErrorHandler.cs" />
+    <Compile Include="Contract\Error\IProccessErrorHandler.cs" />
     <Compile Include="DataModel\JobRecordBase.cs" />
     <Compile Include="DataModel\RecordJob.cs" />
     <Compile Include="DataModel\ResultJob.cs" />
