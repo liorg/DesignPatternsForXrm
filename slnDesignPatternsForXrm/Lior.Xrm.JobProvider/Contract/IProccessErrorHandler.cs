@@ -9,10 +9,20 @@ using System.Diagnostics;
 
 namespace Lior.Xrm.JobsProvider.DataModel
 {
+    public interface IProccessCrmLogHandler
+    {
+        void Init();
+        void WriteStatistics(RunningJob jobstatus);
+        void WriteValidationBussinessLogic(string log, string stackOverflow, string xmlObject);
+        void WriteErrorRecord(string xmlObject, Exception e);
+        void WriteError(Exception e);
+        void Finish(RunningJob jobDetatil);
+        bool EnsureCanWriteError();
+        Guid? GetLogID();
+    }
     public interface IProccessErrorHandler<T> where T : JobRecordBase
     {
-        void StartWritingErrors(ICommandJob<T> commandJob);
-        //void WriteError(ErrorMessage errorMessage);
+        void StartWritingErrors(ICommandJobBase<T> commandJob);
         void WriteLog(T model, string log, EventLogEntryType logType);
         void WriteLog(string modelXml, string log, EventLogEntryType logType);
         void FinishWritingErrors(RunningJob jobDetatil);

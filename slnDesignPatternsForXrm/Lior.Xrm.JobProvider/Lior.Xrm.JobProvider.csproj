@@ -52,16 +52,37 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataModel\ICommandJob.cs" />
-    <Compile Include="DataModel\IProccessErrorHandler.cs" />
+    <Compile Include="Contract\Command\IChunkData.cs" />
+    <Compile Include="Contract\Command\ICommandJobBase.cs" />
+    <Compile Include="Contract\Command\IFetchFilterXmlObjects.cs" />
+    <Compile Include="DataModel\ChunkData.cs" />
+    <Compile Include="DataModel\CofigurationJob.cs" />
+    <Compile Include="Contract\Command\ICommandJob.cs" />
+    <Compile Include="Contract\IJobProvider.cs" />
+    <Compile Include="Contract\IProccessErrorHandler.cs" />
     <Compile Include="DataModel\JobRecordBase.cs" />
     <Compile Include="DataModel\RecordJob.cs" />
+    <Compile Include="DataModel\ResultJob.cs" />
     <Compile Include="Errors\ErrorMessage.cs" />
     <Compile Include="JobsProvider.cs" />
+    <Compile Include="JobUtilHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SQL\GenerateScriptDatabase.txt" />
+    <Content Include="SQL\sql\Procedure\GS_getFaildRecords.sql" />
+    <Content Include="SQL\sql\Procedure\GS_GetJobIdByJobName.sql" />
+    <Content Include="SQL\sql\Procedure\GS_GetJobIdByName.sql" />
+    <Content Include="SQL\sql\Procedure\GS_GetLastJobDate.sql" />
+    <Content Include="SQL\sql\Procedure\GS_getRecordsByJobId.sql" />
+    <Content Include="SQL\sql\Procedure\GS_InsertJobHistory.sql" />
+    <Content Include="SQL\sql\Procedure\GS_InsertRecordJob.sql" />
+    <Content Include="SQL\sql\Procedure\GS_JobAddIfNotExist.sql" />
+    <Content Include="SQL\sql\Procedure\GS_UpdateJobHistory.sql" />
+    <Content Include="SQL\sql\Procedure\GS_UpdateRecord.sql" />
+    <Content Include="SQL\sql\Tables\JobHistory.sql" />
+    <Content Include="SQL\sql\Tables\Jobs.sql" />
+    <Content Include="SQL\sql\Tables\JobStatus.sql" />
+    <Content Include="SQL\sql\Tables\Records.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

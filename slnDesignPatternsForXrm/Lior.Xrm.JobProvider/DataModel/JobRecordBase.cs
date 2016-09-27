@@ -57,5 +57,7 @@ namespace Lior.Xrm.JobsProvider.DataModel
         public int Failed { get; set; }
 
         public int Status { get; set; }
+
+        public string Desc { get; set; }
     }
 }

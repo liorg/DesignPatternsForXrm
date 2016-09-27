@@ -2,26 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Lior.Xrm.JobsProvider.DataModel;
-using Lior.Xrm.JobsProvider.Errors;
+
 using Microsoft.Xrm.Sdk;
 using System.Configuration;
+
 using System.Data.SqlClient;
 using System.ServiceModel;
 using System.IO;
 using System.Xml.Serialization;
 using Microsoft.Xrm.Sdk.Client;
 using System.Diagnostics;
+using Microsoft.Xrm.Client;
+using Microsoft.Xrm.Client.Services;
 
+using Lior.Xrm.JobsProvider.Errors;
 
-namespace Lior.Xrm.JobsProvider
+namespace Lior.Xrm.JobsProvider.DataModel
 {
+    /// <summary>
+    /// version 2.0.0.0
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class JobsProvider<T> : IJobProvider<T> where T : JobRecordBase
     {
         #region Field
         enum StatusRecord { Ready = 1, OnProgress = 2, Finish = 3, Failed = 4 }
-        public const string JobProviderConnectionString = "connStrJobManager";
-        ICommandJob<T> commandJobHandler;
+        // public const string JobProviderConnectionString = "connStrJobManager";
+        ICommandJobBase<T> commandJobHandler;
         Action<T, string, EventLogEntryType> log;
         string connectionString;
         IOrganizationService service;
@@ -32,21 +39,29 @@ namespace Lior.Xrm.JobsProvider
 
         #region Ctor
 
-        public JobsProvider(ICommandJob<T> commandJob, IProccessErrorHandler<T> errorHandler, IOrganizationService crmService)
+        public JobsProvider(ICommandJobBase<T> commandJob, IProccessErrorHandler<T> errorHandler, IOrganizationService crmService)
             : this(commandJob, errorHandler, null, crmService)
         {
         }
 
-        public JobsProvider(ICommandJob<T> commandJob, IProccessErrorHandler<T> errorHandler, string conn, IOrganizationService crmService)
+        public JobsProvider(ICommandJobBase<T> commandJob, IProccessErrorHandler<T> errorHandler, string conn)
+            : this(commandJob, errorHandler, conn, null)
+        {
+
+        }
+
+        public JobsProvider(ICommandJobBase<T> commandJob, IProccessErrorHandler<T> errorHandler, string conn, IOrganizationService crmService)
         {
             if (String.IsNullOrEmpty(conn))
-                connectionString = ConfigurationManager.AppSettings[JobProviderConnectionString];
+                connectionString = ConfigurationManager.AppSettings[JobUtilHelper.JobProviderConnectionString];
             else
                 connectionString = conn;
 
-            //if (crmService == null)
-            //    LoadCrmService();
-            //else
+            JobUtilHelper.InitConnectionString(connectionString);
+
+            if (crmService == null)
+                LoadCrmService();
+            else
                 service = crmService;
 
             commandJobHandler = commandJob;
@@ -55,7 +70,10 @@ namespace Lior.Xrm.JobsProvider
             runningJob = new RunningJob();
         }
 
-       
+        public JobsProvider(ICommandJobBase<T> commandJob, IProccessErrorHandler<T> errorHandler)
+            : this(commandJob, errorHandler, System.Configuration.ConfigurationManager.AppSettings[JobUtilHelper.JobProviderConnectionString])
+        {
+        }
 
         #endregion
 
@@ -65,8 +83,9 @@ namespace Lior.Xrm.JobsProvider
             try
             {
                 _errorHandler.StartWritingErrors(commandJobHandler);
-                InsertToSql();
                 MonitorRunningBegin();
+                InsertToSql();
+
                 ExcuteRecords();
                 PostExecute();
                 _errorHandler.FinishWritingErrors(runningJob);
@@ -84,172 +103,204 @@ namespace Lior.Xrm.JobsProvider
         #endregion
 
         #region Connection
-        //private void LoadCrmService()
-        //{
-        //    //if (service == null)
-        //    //{
-        //    //  //  SDKService serviceFactory = new SDKService();
-        //    //    service = serviceFactory.GetService(false, ConfigurationManager.AppSettings["Org"]);
-        //    //    if (service is OrganizationServiceProxy)
-        //    //        (service as OrganizationServiceProxy).EnableProxyTypes();
-        //    //}
-        //}
+        private void LoadCrmService()
+        {
+            if (service == null)
+            {
+                string connectionString = ConfigurationManager.ConnectionStrings["MyCRMServer"].ConnectionString;
+                CrmConnection connection = CrmConnection.Parse(connectionString);
+                service = new OrganizationService(connection);
+            }
+        }
 
         protected SqlConnection GetSqlConnection()
         {
             return new SqlConnection(connectionString);
         }
+
         #endregion
 
         #region Monitor
 
         void MonitorRunningBegin()
         {
-            using (var connection = GetSqlConnection())
-            {
-                var command = new SqlCommand(@"dbo.GS_InsertJobHistory", connection);
-                command.Parameters.AddWithValue("@jobid", runningJob.JobId);
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                connection.Open();
-                runningJob.ID = (Guid)command.ExecuteScalar();
-            }
+            var configJob = commandJobHandler.CofigurationJob;
+            runningJob.JobId = GetJobIdByJobName();
+            if (runningJob.JobId == null)
+                throw new ArgumentNullException("there is no any jobid for " + JobUtilHelper.GetFullJobNameByCofigurationJob(configJob));
+
             runningJob.BeginRun = DateTime.Now;
+            var id = JobUtilHelper.AddHistory(runningJob.JobId, runningJob.BeginRun);
+            runningJob.ID = id;
+        }
+
+        void MonitorCompleteGetData()
+        {
+            if (runningJob.ID == Guid.Empty)
+                return;
+            JobUtilHelper.UpdateJobHistory(runningJob, true);
+            runningJob.EndRun = DateTime.Now;
+            Console.WriteLine("runningJob.MonitorCompleteGetData= " + runningJob.Insert);
         }
 
         void MonitorRunningEnd()
         {
             if (runningJob.ID == Guid.Empty)
                 return;
-
-            using (var connection = GetSqlConnection())
-            {
-                var command = new SqlCommand(@"dbo.GS_UpdateJobHistory", connection);
-                command.Parameters.AddWithValue("@id", runningJob.ID);
-                command.Parameters.AddWithValue("@total", runningJob.Total);
-                command.Parameters.AddWithValue("@noupdate", runningJob.NoUpdate);
-                command.Parameters.AddWithValue("@update", runningJob.Update);
-                command.Parameters.AddWithValue("@insert", runningJob.Insert);
-                command.Parameters.AddWithValue("@success", runningJob.Success);
-                command.Parameters.AddWithValue("@failed", runningJob.Failed);
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
+            JobUtilHelper.UpdateJobHistory(runningJob);
             runningJob.EndRun = DateTime.Now;
-            Console.WriteLine("runningJob.Insert= " + runningJob.Insert);
+            Console.WriteLine("runningJob.end= " + runningJob.Insert);
         }
 
         #endregion
 
         #region Set And Get Bussiness Rows
 
+        #region insert to sql
+
         void InsertToSql()
         {
+            if(commandJobHandler is IFetchFilterXmlObjects)
+            {
+                IFetchFilterXmlObjects fetchFilter = (IFetchFilterXmlObjects)commandJobHandler;
+                var queue = fetchFilter.FetchFilterXmlObjects;
+                var fetchFilterObjectXml = "";
+                do
+                {
+                    fetchFilterObjectXml = queue.Dequeue();
+                    InsertToSqlChunkData(fetchFilterObjectXml);
+                }
+                while (queue.Count > 0);
+
+            }
+            else if (commandJobHandler is IChunkData)
+                InsertToSqlChunkData();
+            else
+                InsertToSqlAll();
+
+            if (commandJobHandler is IPostGetJob)
+                ((IPostGetJob)commandJobHandler).PostGet();
+
+            MonitorCompleteGetData();
+        }
+
+        void InsertToSqlAll()
+        {
             Console.WriteLine("InsertToSql start ");
-            var jobs = commandJobHandler.Get(_errorHandler.WriteLog);
+            ICommandJob<T> JobHandler = (ICommandJob<T>)commandJobHandler;//.Get(_errorHandler.WriteLog);
+            var jobs = JobHandler.Get(_errorHandler.WriteLog);
             Console.WriteLine("records " + (jobs == null ? "null" : jobs.Count().ToString()));
             var configJob = commandJobHandler.CofigurationJob;
             if (jobs == null || !jobs.Any())
             {
                 runningJob.JobId = GetJobIdByJobName();
                 if (runningJob.JobId == null)
-                    throw new ArgumentNullException("there is no any jobid for " + GetFullJobNameByCofigurationJob(configJob));
-                //return;
+                    throw new ArgumentNullException("there is no any jobid for " + JobUtilHelper.GetFullJobNameByCofigurationJob(configJob));
             }
             else
             {
                 //Insert jobs, and get job id.
                 foreach (var job in jobs)
                 {
-                    Console.WriteLine("Insert record: " + (job.CurrentStep != null ? job.CurrentStep.ToString() : " "));
-                    #region Code was refractored to InsertRecordJob(T job, CofigurationJob configJob)
-                    //var xmlObject = SerializeToXml(job);
-                    //using (var connection = GetSqlConnection())
-                    //{
-
-                    //    var command = new SqlCommand(@"dbo.GS_InsertRecordJob", connection);
-                    //    command.Parameters.AddWithValue("@jobName", GetFullJobNameByCofigurationJob(configJob));
-                    //    command.Parameters.AddWithValue("@ModelXml", xmlObject);
-                    //    command.Parameters.AddWithValue("@ModelTypeXml", typeof(T).FullName);
-                    //    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    //    connection.Open();
-
-                    //    if (runningJob.JobId == null)
-                    //        runningJob.JobId = (Guid)command.ExecuteScalar();
-                    //    else
-                    //        command.ExecuteNonQuery();
-                    //} 
-                    #endregion
-                    InsertRecordJob(job, configJob);
+                    Console.WriteLine("Insert record: " +job.CurrentStep.ToString() );
+                    InsertRecordJob(job, configJob, runningJob);
                 }
             }
             Console.WriteLine("InsertToSql end ");
-            if (commandJobHandler is IPostGetJob)
-                ((IPostGetJob)commandJobHandler).PostGet();
-            //if (jobs != null && jobs.Any() && commandJobHandler is IPostGetJob)
-            //{
-            //    ((IPostGetJob)commandJobHandler).PostGet();
-            //}
-            //if there are no jobs in the current proccess -> get job id by name
-            //if (runningJob.JobId == null)
-            //{
-            //    using (var connection = GetSqlConnection())
-            //    {
-            //        var command = new SqlCommand(@"dbo.GS_GetJobIdByName", connection);
-            //        command.Parameters.AddWithValue("@jobName", GetFullJobNameByCofigurationJob(configJob));
-            //        if (commandJobHandler.CofigurationJob.MaxRetries.HasValue)
-            //            command.Parameters.AddWithValue("@MaxRetries", commandJobHandler.CofigurationJob.MaxRetries);
-            //        command.CommandType = System.Data.CommandType.StoredProcedure;
-            //        connection.Open();
-
-            //        if (runningJob.JobId == null)
-            //            runningJob.JobId = (Guid)command.ExecuteScalar();
-            //    }
-            //}
         }
+
+        void InsertToSqlChunkData(string fetchFilterXmlObject="")
+        {
+            var jobHandler = ((IFetchFilterXmlObjects<T>)commandJobHandler);
+            Console.WriteLine("InsertToSqlChunkData start ");
+            ChunkData chunkdata = new ChunkData();
+            chunkdata.Limit = jobHandler.Limit;
+            chunkdata.Page = jobHandler.Page;
+            chunkdata.FromDate = jobHandler.FromDate;
+            var maxdate = jobHandler.MaxDate ?? DateTime.Now;
+            chunkdata.FetchFilterXmlObject = fetchFilterXmlObject;
+            chunkdata.ToDate = jobHandler.Next(chunkdata.FromDate);
+
+            while (chunkdata.FromDate < maxdate)
+            {
+                bool hasrows = true;
+                do
+                {
+                    var jobs = jobHandler.Get(_errorHandler.WriteLog, chunkdata);
+                    Console.WriteLine("records " + (jobs == null ? "null" : jobs.Count().ToString()));
+                    var configJob = commandJobHandler.CofigurationJob;
+                    if (jobs == null || !jobs.Any())
+                    {
+                        runningJob.JobId = GetJobIdByJobName();
+                        if (runningJob.JobId == null)
+                            throw new ArgumentNullException("there is no any jobid for " + JobUtilHelper.GetFullJobNameByCofigurationJob(configJob));
+                        //return;
+                        hasrows = false;
+                        chunkdata.JobId = runningJob.JobId.Value;
+                    }
+                    else
+                    {
+                        runningJob.JobId = runningJob.JobId.HasValue ? runningJob.JobId.Value : GetJobIdByJobName();
+                        if (runningJob.JobId == null)
+                            throw new ArgumentNullException("there is no any jobid!!! for " + JobUtilHelper.GetFullJobNameByCofigurationJob(configJob));
+
+                        chunkdata.JobId = runningJob.JobId.Value;
+                        //Insert jobs, and get job id.
+                        hasrows = jobs.Any();
+                        foreach (var job in jobs)
+                        {
+                            Console.WriteLine("Insert record: " + job.CurrentStep.ToString());
+                            InsertRecordJob(job, configJob, runningJob);
+                        }
+                    }
+                    if (!hasrows)
+                        chunkdata.Page = 1;
+                    else
+                        chunkdata.Page += 1;
+
+                } while (hasrows);
+
+                Console.WriteLine("InsertToSqlChunkData end ");
+                chunkdata.FromDate = chunkdata.ToDate;
+                chunkdata.ToDate = jobHandler.Next(chunkdata.FromDate);
+
+            }
+        }
+        #endregion
 
         public void SetRecord(T job)
         {
-           
-
             try
             {
                 _errorHandler.StartWritingErrors(commandJobHandler);
                 var configJob = commandJobHandler.CofigurationJob;
                 runningJob.JobId = GetJobIdByJobName();
-                if (runningJob.JobId == null)
-                    throw new ArgumentNullException("there is no any jobid for " + GetFullJobNameByCofigurationJob(configJob));
 
-                InsertRecordJob(job, configJob);
+                if (runningJob.JobId == null)
+                    throw new ArgumentNullException("there is no any jobid for " + JobUtilHelper.GetFullJobNameByCofigurationJob(configJob));
+
+                InsertRecordJob(job, configJob, runningJob);
+                runningJob.Insert = 1;
+                runningJob.Success = 1;
+                runningJob.Total = 1;
+                runningJob.Desc = SerializeToXml(job);
+
                 _errorHandler.FinishWritingErrors(runningJob);
             }
             catch (Exception ex)
             {
-                _errorHandler.WriteLog("JobProvider=>Run()", ex.StackTrace, EventLogEntryType.Error);
-                Console.WriteLine("Run ex " + ex.Message);
+                _errorHandler.WriteLog("JobProvider=>SetRecord()", ex.StackTrace, EventLogEntryType.Error);
             }
         }
 
-        private void InsertRecordJob(T job, CofigurationJob configJob)
+        private void InsertRecordJob(T job, CofigurationJob configJob, RunningJob runnerjob)
         {
             var xmlObject = SerializeToXml(job);
-            using (var connection = GetSqlConnection())
-            {
-                var command = new SqlCommand(@"dbo.GS_InsertRecordJob", connection);
-                command.Parameters.AddWithValue("@jobName", GetFullJobNameByCofigurationJob(configJob));
-                command.Parameters.AddWithValue("@ModelXml", xmlObject);
-                command.Parameters.AddWithValue("@ModelTypeXml", typeof(T).FullName);
-                command.Parameters.AddWithValue("@MaxRetries", configJob.MaxRetries);
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                connection.Open();
-
-                if (runningJob.JobId == null)
-                    runningJob.JobId = (Guid)command.ExecuteScalar();
-                else
-                    command.ExecuteNonQuery();
-            }
+            var fullname = typeof(T).FullName;
+            var jobid = JobUtilHelper.InsertRecordJob(xmlObject, fullname, commandJobHandler.CofigurationJob, runnerjob);
+            if (runningJob.JobId == null)
+                runningJob.JobId = jobid;
         }
-
 
         public IEnumerable<RecordJob<T>> GetRecordsById()
         {
@@ -277,7 +328,6 @@ namespace Lior.Xrm.JobsProvider
                     recordJob.JobRecord = DeserializeFromXml(xml);
                     list.Add(recordJob);
                 }
-
             }
             return list;
         }
@@ -330,69 +380,18 @@ namespace Lior.Xrm.JobsProvider
 
         public DateTime? GetLastJobDate()
         {
-            DateTime lastDate = DateTime.Now;
-            bool succeeded = false; var configJob = commandJobHandler.CofigurationJob;
-            using (var connection = GetSqlConnection())
-            {
-                SqlCommand command = new SqlCommand(@"dbo.GS_GetLastJobDate", connection);
-                command.Parameters.AddWithValue("@JobName", GetFullJobNameByCofigurationJob(configJob));
-                // command.Parameters.AddWithValue("@MaxRetries", commandJobHandler.CofigurationJob.MaxRetries);
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                connection.Open();
-                var drOutput = command.ExecuteReader();
-
-                while (drOutput.Read())
-                {
-                    if (DateTime.TryParse(drOutput["StartedAt"].ToString(), out lastDate))
-                        succeeded = true;
-                }
-            }
-            if (succeeded)
-                return (DateTime?)lastDate;
-            else
-                return null;
-        }
-
-        protected string GetFullJobNameByCofigurationJob(CofigurationJob cofigurationJob)
-        {
-            return cofigurationJob.JobName + cofigurationJob.Version;
+            return JobUtilHelper.GetLastJobDate(commandJobHandler.CofigurationJob);
         }
 
         private Guid? GetJobIdByJobName()
         {
-            Guid? jobid = null;
-            CofigurationJob cofigurationJob = commandJobHandler.CofigurationJob;
-            using (var connection = new SqlConnection(ConfigurationManager.AppSettings[JobProviderConnectionString]))
-            {
-                //SqlCommand command = new SqlCommand(@"dbo.GS_GetJobIdByJobName", connection);
-                SqlCommand command = new SqlCommand(@"dbo.GS_GetJobIdByName", connection);
-
-                command.Parameters.AddWithValue("@jobName", GetFullJobNameByCofigurationJob(cofigurationJob));
-                command.Parameters.AddWithValue("@MaxRetries", cofigurationJob.MaxRetries);
-
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                connection.Open();
-                var returnJobid = command.ExecuteScalar();
-                if (returnJobid is Guid)
-                {
-                    jobid = (Guid)returnJobid;
-                }
-            }
+            Guid? jobid = JobUtilHelper.GetJobIdByJobName(commandJobHandler.CofigurationJob);
             return jobid;
         }
 
         private int GetMaxRetries(Guid jobId)
         {
-            int maxRetrys = -1;
-            using (var connection = new SqlConnection(ConfigurationManager.AppSettings[JobProviderConnectionString]))
-            {
-                SqlCommand command = new SqlCommand(@"dbo.GS_GetJobMaxRetries", connection);
-                command.Parameters.AddWithValue("@JobId", jobId);
-
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                connection.Open();
-                maxRetrys = Convert.ToInt32(command.ExecuteScalar());
-            }
+            int maxRetrys = JobUtilHelper.GetMaxRetries(jobId);
             return maxRetrys;
         }
 
@@ -402,7 +401,6 @@ namespace Lior.Xrm.JobsProvider
 
         public void ExcuteXml(string xml)
         {
-
             var jobRecord = DeserializeFromXml(xml);
             commandJobHandler.Execute(jobRecord, _errorHandler.WriteLog);
         }
@@ -490,34 +488,14 @@ namespace Lior.Xrm.JobsProvider
 
         void UpdateStatus(RecordJob<T> record, int status)
         {
-            using (var connection = GetSqlConnection())
-            {
-                var command = new SqlCommand(@"dbo.GS_UpdateRecord", connection);
-                command.Parameters.AddWithValue("@recordid", record.RecordId);
-                command.Parameters.AddWithValue("@status", status);
-                // command.Parameters.AddWithValue("@retry", record.Retry);
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
+            JobUtilHelper.UpdateStatus(record.RecordId, status, commandJobHandler.CofigurationJob);
         }
 
         void UpdateRow(RecordJob<T> record, int status, string action = "")
         {
             record.Retry += 1;
             var xmlObject = SerializeToXml(record.JobRecord);
-            using (var connection = GetSqlConnection())
-            {
-                var command = new SqlCommand(@"dbo.GS_UpdateRecord", connection);
-                command.Parameters.AddWithValue("@recordid", record.RecordId);
-                command.Parameters.AddWithValue("@status", status);
-                command.Parameters.AddWithValue("@retry", record.Retry);
-                command.Parameters.AddWithValue("@ModelXml", xmlObject);
-
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
+            JobUtilHelper.UpdateRow(record.RecordId, xmlObject, record.Retry, status, commandJobHandler.CofigurationJob, action);
         }
 
         #endregion
@@ -526,7 +504,6 @@ namespace Lior.Xrm.JobsProvider
 
         private void HandleFualtException(FaultException<OrganizationServiceFault> fex, ref int status)
         {
-
             //ErrorMessage msg = errMangerList.Where(n => n.Value == fex.Detail.Message).FirstOrDefault();
             //if (msg != null)
             //{
@@ -582,10 +559,10 @@ namespace Lior.Xrm.JobsProvider
         {
             get
             {
-                //if (service == null)
-                //{
-                //    LoadCrmService();
-                //}
+                if (service == null)
+                {
+                    LoadCrmService();
+                }
                 return service;
             }
 
@@ -595,6 +572,7 @@ namespace Lior.Xrm.JobsProvider
         {
             get { return runningJob; }
         }
+
         #endregion
     }
 }
