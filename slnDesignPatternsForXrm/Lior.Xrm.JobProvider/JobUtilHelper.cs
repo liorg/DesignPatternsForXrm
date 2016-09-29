@@ -32,7 +32,7 @@ namespace Lior.Xrm.JobsProvider.DataModel
                 var command = new SqlCommand(@"dbo.GS_InsertJobHistory", connection);
                 command.Parameters.AddWithValue("@jobid", jobid);
                 command.Parameters.AddWithValue("@StartedAt", startAt);
-           
+
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 connection.Open();
                 var id = (Guid)command.ExecuteScalar();
@@ -43,10 +43,9 @@ namespace Lior.Xrm.JobsProvider.DataModel
         static string GetConectionString()
         {
             return !String.IsNullOrEmpty(_connectionString) ? _connectionString : ConfigurationManager.AppSettings[JobProviderConnectionString].ToString();
-
         }
 
-        public static void UpdateJobHistory(RunningJob runningJob,bool? isGetDataComplete=null)
+        public static void UpdateJobHistory(RunningJob runningJob, bool? isGetDataComplete = null)
         {
             using (var connection = GetSqlConnection(GetConectionString()))
             {
@@ -71,7 +70,7 @@ namespace Lior.Xrm.JobsProvider.DataModel
             return cofigurationJob.JobName + cofigurationJob.Version;
         }
 
-        public static DateTime? GetLastJob(CofigurationJob configJob,string chunkName=null)
+        public static DateTime? GetLastJob(CofigurationJob configJob)
         {
             DateTime? getlastDate = null;
             DateTime lastDate = DateTime.Now;
@@ -82,7 +81,6 @@ namespace Lior.Xrm.JobsProvider.DataModel
             {
                 SqlCommand command = new SqlCommand(@"dbo.GS_GetLastJobDate", connection);
                 command.Parameters.AddWithValue("@JobName", GetFullJobNameByCofigurationJob(configJob));
-                 command.Parameters.AddWithValue("@name", chunkName);
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 connection.Open();
                 var drOutput = command.ExecuteReader();
@@ -96,31 +94,31 @@ namespace Lior.Xrm.JobsProvider.DataModel
             return null;
         }
 
-        public static DateTime? GetLastJobDate(CofigurationJob configJob)
-        {
-            DateTime lastDate = DateTime.Now;
-            bool succeeded = false;
+        //public static DateTime? GetLastJobDate(CofigurationJob configJob)
+        //{
+        //    DateTime lastDate = DateTime.Now;
+        //    bool succeeded = false;
 
-            using (var connection = GetSqlConnection(GetConectionString()))
-            {
-                SqlCommand command = new SqlCommand(@"dbo.GS_GetLastJobDate", connection);
-                command.Parameters.AddWithValue("@JobName", GetFullJobNameByCofigurationJob(configJob));
-                // command.Parameters.AddWithValue("@MaxRetries", commandJobHandler.CofigurationJob.MaxRetries);
-                command.CommandType = System.Data.CommandType.StoredProcedure;
-                connection.Open();
-                var drOutput = command.ExecuteReader();
+        //    using (var connection = GetSqlConnection(GetConectionString()))
+        //    {
+        //        SqlCommand command = new SqlCommand(@"dbo.GS_GetLastJobDate", connection);
+        //        command.Parameters.AddWithValue("@JobName", GetFullJobNameByCofigurationJob(configJob));
+        //        // command.Parameters.AddWithValue("@MaxRetries", commandJobHandler.CofigurationJob.MaxRetries);
+        //        command.CommandType = System.Data.CommandType.StoredProcedure;
+        //        connection.Open();
+        //        var drOutput = command.ExecuteReader();
 
-                while (drOutput.Read())
-                {
-                    if (DateTime.TryParse(drOutput["StartedAt"].ToString(), out lastDate))
-                        succeeded = true;
-                }
-            }
-            if (succeeded)
-                return (DateTime?)lastDate;
-            else
-                return null;
-        }
+        //        while (drOutput.Read())
+        //        {
+        //            if (DateTime.TryParse(drOutput["StartedAt"].ToString(), out lastDate))
+        //                succeeded = true;
+        //        }
+        //    }
+        //    if (succeeded)
+        //        return (DateTime?)lastDate;
+        //    else
+        //        return null;
+        //}
 
         public static Guid? GetJobIdByJobName(CofigurationJob cofigurationJob)
         {
@@ -202,8 +200,7 @@ namespace Lior.Xrm.JobsProvider.DataModel
                 command.Parameters.AddWithValue("@MaxRetries", configJob.MaxRetries);
                 command.Parameters.AddWithValue("@ModelXml", xmlObject);
                 command.Parameters.AddWithValue("@ModelTypeXml", fullname);
-                command.Parameters.AddWithValue("@MaxRetries", configJob.MaxRetries);
-                command.Parameters.AddWithValue("@historyId", runnerjob.JobId);
+                command.Parameters.AddWithValue("@historyId", runnerjob.ID);
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 connection.Open();
                 var jobid = (Guid)command.ExecuteScalar();

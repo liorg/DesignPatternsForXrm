@@ -1,6 +1,6 @@
 ﻿USE [JobManager]
 GO
-/****** Object:  StoredProcedure [dbo].[GS_getRecordsByJobId]    Script Date: 26/09/2016 15:20:39 ******/
+/****** Object:  StoredProcedure [dbo].[GS_getRecordsByJobId]    Script Date: 29/09/2016 11:39:50 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -31,10 +31,10 @@ BEGIN
 
 		ON R.JobId=J.JobId
 		inner join dbo.JobHistory jh
-		on jh.HistoryId=r.HistoryId
+		on jh.HistoryId=r.HistoryId or jh.HistoryId='00000000-0000-0000-0000-000000000000'
 	WHERE R.JobId = @JobId AND 
 	R.Retry < J.MaxRetries 
-	AND (R.StatusId = 0 or R.StatusId = 4) and jh.IsGetDataComplete=1
+	AND (R.StatusId = 0 or R.StatusId = 4) and (jh.IsGetDataComplete=1 or jh.HistoryId='00000000-0000-0000-0000-000000000000')
 
  
 END

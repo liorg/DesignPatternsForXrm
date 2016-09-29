@@ -1,6 +1,6 @@
 ﻿USE [JobManager]
 GO
-/****** Object:  StoredProcedure [dbo].[GS_GetLastJobDate]    Script Date: 26/09/2016 15:18:23 ******/
+/****** Object:  StoredProcedure [dbo].[GS_GetLastJobDate]    Script Date: 29/09/2016 16:47:33 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -10,7 +10,7 @@ GO
 -- Create date: <Create Date,,>
 -- Description:	<Description,,>
 -- =============================================
--- exec  [dbo].[GS_GetLastJobDate] 'SurveyInterface1.0.0.0'
+-- exec  [dbo].[GS_GetLastJobDate] 'Malam.Crm.Talcar.ActiveTrail.EventCallback1.0.0.0'
 ALTER PROCEDURE [dbo].[GS_GetLastJobDate]
 	@JobName nvarchar(50)
 AS
@@ -21,6 +21,6 @@ BEGIN
     FROM dbo.JobHistory H
     INNER JOIN dbo.Jobs J
 		ON H.JobId = J.JobId
-    WHERE J.JobName = @JobName 
+    WHERE J.JobName = @JobName and h.IsGetDataComplete=1
     ORDER BY H.StartedAt desc
 END

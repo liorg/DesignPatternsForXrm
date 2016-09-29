@@ -160,7 +160,7 @@ namespace Lior.Xrm.JobsProvider.DataModel
 
         void InsertToSql()
         {
-            if(commandJobHandler is IFetchFilterXmlObjects)
+            if (commandJobHandler is IFetchFilterXmlObjects)
             {
                 IFetchFilterXmlObjects fetchFilter = (IFetchFilterXmlObjects)commandJobHandler;
                 var queue = fetchFilter.FetchFilterXmlObjects;
@@ -202,14 +202,14 @@ namespace Lior.Xrm.JobsProvider.DataModel
                 //Insert jobs, and get job id.
                 foreach (var job in jobs)
                 {
-                    Console.WriteLine("Insert record: " +job.CurrentStep.ToString() );
+                    Console.WriteLine("Insert record: " + job.CurrentStep.ToString());
                     InsertRecordJob(job, configJob, runningJob);
                 }
             }
             Console.WriteLine("InsertToSql end ");
         }
 
-        void InsertToSqlChunkData(string fetchFilterXmlObject="")
+        void InsertToSqlChunkData(string fetchFilterXmlObject = "")
         {
             var jobHandler = ((IFetchFilterXmlObjects<T>)commandJobHandler);
             Console.WriteLine("InsertToSqlChunkData start ");
@@ -278,7 +278,7 @@ namespace Lior.Xrm.JobsProvider.DataModel
 
                 if (runningJob.JobId == null)
                     throw new ArgumentNullException("there is no any jobid for " + JobUtilHelper.GetFullJobNameByCofigurationJob(configJob));
-
+                runningJob.ID = Guid.Empty;
                 InsertRecordJob(job, configJob, runningJob);
                 runningJob.Insert = 1;
                 runningJob.Success = 1;
@@ -380,7 +380,7 @@ namespace Lior.Xrm.JobsProvider.DataModel
 
         public DateTime? GetLastJobDate()
         {
-            return JobUtilHelper.GetLastJobDate(commandJobHandler.CofigurationJob);
+            return JobUtilHelper.GetLastJob(commandJobHandler.CofigurationJob);
         }
 
         private Guid? GetJobIdByJobName()
