@@ -52,6 +52,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contract\Command\IFetchCrmData.cs" />
     <Compile Include="Contract\Command\IChunkData.cs" />
     <Compile Include="Contract\Command\ICommandJobBase.cs" />
     <Compile Include="Contract\Command\IFetchFilterXmlObjects.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="DataModel\RecordJob.cs" />
     <Compile Include="DataModel\ResultJob.cs" />
     <Compile Include="Errors\ErrorMessage.cs" />
+    <Compile Include="FetchXml\LargeResultSetsFetchXML.cs" />
     <Compile Include="JobsProvider.cs" />
     <Compile Include="JobUtilHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -80,6 +82,7 @@
     <Content Include="SQL\sql\Procedure\GS_JobAddIfNotExist.sql" />
     <Content Include="SQL\sql\Procedure\GS_UpdateJobHistory.sql" />
     <Content Include="SQL\sql\Procedure\GS_UpdateRecord.sql" />
+    <Content Include="SQL\sql\Procedure\GS_UpdateStatusBulkRecords.sql" />
     <Content Include="SQL\sql\Tables\JobHistory.sql" />
     <Content Include="SQL\sql\Tables\Jobs.sql" />
     <Content Include="SQL\sql\Tables\JobStatus.sql" />

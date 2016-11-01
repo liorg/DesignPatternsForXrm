@@ -1,6 +1,6 @@
 ﻿USE [JobManager]
 GO
-/****** Object:  StoredProcedure [dbo].[GS_getRecordsByJobId]    Script Date: 29/09/2016 11:39:50 ******/
+/****** Object:  StoredProcedure [dbo].[GS_getRecordsByJobId]    Script Date: 31/10/2016 16:58:51 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -11,9 +11,9 @@ GO
 -- Description:	<Description,,>
 -- =============================================
 
---exec [dbo].[GS_getRecordsByJobId] 'de9a6f4e-695d-41fa-bae7-d4965a49c380'
+--	exec [dbo].[GS_getRecordsByJobId] @JobId='25eeb0e0-2fb4-4456-9ae1-fa119a5ee4b8' ,@PageNumber=2,@RowspPage=3
 ALTER PROCEDURE [dbo].[GS_getRecordsByJobId]
-	@JobId uniqueidentifier
+	@JobId uniqueidentifier,@PageNumber  int =2,@RowspPage int =5000 
 AS
 BEGIN
 	SET NOCOUNT ON;
@@ -35,6 +35,6 @@ BEGIN
 	WHERE R.JobId = @JobId AND 
 	R.Retry < J.MaxRetries 
 	AND (R.StatusId = 0 or R.StatusId = 4) and (jh.IsGetDataComplete=1 or jh.HistoryId='00000000-0000-0000-0000-000000000000')
-
- 
+	order by CreatedOn
+OFFSET ((@PageNumber - 1) * @RowspPage) ROWS FETCH NEXT @RowspPage ROWS ONLY;
 END

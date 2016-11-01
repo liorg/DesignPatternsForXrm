@@ -12,5 +12,6 @@ namespace Lior.Xrm.JobsProvider.DataModel
         public string Version { get; set; }
         public int? MaxRetries { get; set; }
         public bool IsDeleteSuccessRows { get; set; }
+        public int? RowspPage { get; set; }
     }
 }

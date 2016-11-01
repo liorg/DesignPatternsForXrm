@@ -1,7 +1,7 @@
 ﻿USE [JobManager]
 GO
 
-/****** Object:  Table [dbo].[Records]    Script Date: 25/09/2016 17:39:45 ******/
+/****** Object:  Table [dbo].[Records]    Script Date: 31/10/2016 18:26:10 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -18,7 +18,8 @@ CREATE TABLE [dbo].[Records](
 	[Retry] [int] NULL,
 	[ModelType] [nvarchar](100) NULL,
 	[Action] [nvarchar](500) NULL,
-	[HistoryId] [uniqueidentifier] NOT NULL
+	[HistoryId] [uniqueidentifier] NOT NULL,
+	[StatusCode] [int] NULL
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
 GO

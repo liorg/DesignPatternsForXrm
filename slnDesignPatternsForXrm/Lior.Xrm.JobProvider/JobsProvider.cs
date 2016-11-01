@@ -20,7 +20,7 @@ using Lior.Xrm.JobsProvider.Errors;
 namespace Lior.Xrm.JobsProvider.DataModel
 {
     /// <summary>
-    /// version 2.0.0.0
+    /// version 2.0.0.1
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class JobsProvider<T> : IJobProvider<T> where T : JobRecordBase
@@ -175,6 +175,8 @@ namespace Lior.Xrm.JobsProvider.DataModel
             }
             else if (commandJobHandler is IChunkData)
                 InsertToSqlChunkData();
+            else if (commandJobHandler is IFetchCrmData<T>)
+                InsertToSqlFetchCrmXml();
             else
                 InsertToSqlAll();
 
@@ -266,6 +268,25 @@ namespace Lior.Xrm.JobsProvider.DataModel
 
             }
         }
+
+        void InsertToSqlFetchCrmXml()
+        {
+            var configJob = commandJobHandler.CofigurationJob;
+            var jobHandler = ((IFetchCrmData<T>)commandJobHandler);
+            LargeResultSetsFetchXML largeXml = new LargeResultSetsFetchXML();
+            runningJob.JobId = GetJobIdByJobName();
+            if (runningJob.JobId == null)
+                throw new ArgumentNullException("there is no any jobid for " + JobUtilHelper.GetFullJobNameByCofigurationJob(configJob));
+            //return;
+            foreach (var itemFetchXmlRow in largeXml.Get(Service, jobHandler.FetchXml, jobHandler.Count))
+            {
+                bool toinsert;
+                var job = jobHandler.ConvertToObject(itemFetchXmlRow, out toinsert);
+                if (toinsert)
+                    InsertRecordJob(job, configJob, runningJob);
+            }
+        }
+
         #endregion
 
         public void SetRecord(T job)
@@ -302,16 +323,19 @@ namespace Lior.Xrm.JobsProvider.DataModel
                 runningJob.JobId = jobid;
         }
 
-        public IEnumerable<RecordJob<T>> GetRecordsById()
+        public IEnumerable<RecordJob<T>> GetRecordsById(int pageNumber, int? rowspPage, out bool hasMore)
         {
             Console.WriteLine("GetRecordsById start");
             var list = new System.Collections.Generic.List<RecordJob<T>>();
-
+            hasMore = false;
             using (var connection = GetSqlConnection())
             {
                 Console.WriteLine("GetRecordsById after get connection");
                 var command = new SqlCommand(@"dbo.GS_getRecordsByJobId", connection);
                 command.Parameters.AddWithValue("@JobId", runningJob.JobId);
+                command.Parameters.AddWithValue("@PageNumber", pageNumber);
+                if (rowspPage.HasValue)
+                    command.Parameters.AddWithValue("@RowspPage", rowspPage.Value);
 
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 connection.Open();
@@ -320,6 +344,9 @@ namespace Lior.Xrm.JobsProvider.DataModel
                 Console.WriteLine("GetRecordsById after exec reader");
                 while (drOutput.Read())
                 {
+                    if (!hasMore)
+                        hasMore = true;
+
                     var recordJob = new RecordJob<T>();
                     var xml = (drOutput["ModelXml"] != Convert.DBNull) ? drOutput["ModelXml"].ToString() : null;
                     recordJob.JobId = (drOutput["JobId"] != Convert.DBNull) ? Guid.Parse(drOutput["JobId"].ToString()) : Guid.Empty;
@@ -410,67 +437,74 @@ namespace Lior.Xrm.JobsProvider.DataModel
             Console.WriteLine("ExcuteRecords start ");
             if (this.RunningJob.JobId == null)
                 throw new ArgumentException("Running job must contain JobId");
-
-            var getRecordsById = GetRecordsById();
-            //1	מוכן לטעינה
-            //2	בתהליך
-            //3	הסתיים
-            //4	נכשל
-            Console.WriteLine("ExcuteRecords before foreach ");
-            foreach (var record in getRecordsById)
+            bool hasmore; int pageNumber = 1;
+            do
             {
-                Console.WriteLine("ExcuteRecords foreach : " + runningJob.Total.ToString());
-                int status = 0; string action = "";
-                try
+                //this.connectionString
+                var getRecordsById = GetRecordsById(pageNumber, commandJobHandler.CofigurationJob.RowspPage, out hasmore);
+                pageNumber += 1;
+                //1	מוכן לטעינה
+                //2	בתהליך
+                //3	הסתיים
+                //4	נכשל
+                Console.WriteLine("ExcuteRecords before foreach ");
+                foreach (var record in getRecordsById)
                 {
-                    runningJob.Total++;
-                    UpdateOnProgressRow(record);
-                    Console.WriteLine("ExcuteRecords foreach after UpdateOnProgressRow ");
-                    ResultJob returnValues = commandJobHandler.Execute(record.JobRecord, _errorHandler.WriteLog);
-                    action = returnValues.ToString();
-                    Console.WriteLine("ExcuteRecords foreach after returnValues ");
-                    if (returnValues.HasFlag(ResultJob.Insert))
-                        runningJob.Insert++;
-                    if (returnValues.HasFlag(ResultJob.Update))
-                        runningJob.Update++;
-                    if (returnValues.HasFlag(ResultJob.NoUpdate))
-                        runningJob.NoUpdate++;
-                    if (returnValues.HasFlag(ResultJob.Failed) || returnValues.HasFlag(ResultJob.FailedRetry))
+                    Console.WriteLine("ExcuteRecords foreach : " + runningJob.Total.ToString());
+                    int status = 0; string action = "";
+                    try
+                    {
+                        runningJob.Total++;
+                        UpdateOnProgressRow(record);
+                        Console.WriteLine("ExcuteRecords foreach after UpdateOnProgressRow ");
+                        ResultJob returnValues = commandJobHandler.Execute(record.JobRecord, _errorHandler.WriteLog);
+                        action = returnValues.ToString();
+                        Console.WriteLine("ExcuteRecords foreach after returnValues ");
+                        if (returnValues.HasFlag(ResultJob.Insert))
+                            runningJob.Insert++;
+                        if (returnValues.HasFlag(ResultJob.Update))
+                            runningJob.Update++;
+                        if (returnValues.HasFlag(ResultJob.NoUpdate))
+                            runningJob.NoUpdate++;
+                        if (returnValues.HasFlag(ResultJob.Failed) || returnValues.HasFlag(ResultJob.FailedRetry))
+                            runningJob.Failed++;
+                        else
+                            runningJob.Success++;
+
+                        if (returnValues.HasFlag(ResultJob.FailedRetry))
+                            status = (int)StatusRecord.Failed;
+                        else
+                            status = (int)StatusRecord.Finish;
+                        Console.WriteLine("ExcuteRecords foreach finish");
+                    }
+                    catch (FaultException<OrganizationServiceFault> fex)
+                    {
+                        if (_errorHandler != null)
+                            _errorHandler.WriteLog(record.JobRecord, fex.StackTrace + "_" + fex.Message, EventLogEntryType.Error);
                         runningJob.Failed++;
-                    else
-                        runningJob.Success++;
+                        HandleFualtException(fex, ref status);
+                        Console.WriteLine("Error: " + fex.Message + Environment.NewLine + fex.InnerException);
+                    }
+                    catch (Exception e)
+                    {
+                        if (_errorHandler != null)
+                            _errorHandler.WriteLog(record.JobRecord, e.StackTrace + "_ex_" + e.ToString(), EventLogEntryType.Error);
 
-                    if (returnValues.HasFlag(ResultJob.FailedRetry))
-                        status = (int)StatusRecord.Failed;
-                    else
-                        status = (int)StatusRecord.Finish;
-                    Console.WriteLine("ExcuteRecords foreach finish");
-                }
-                catch (FaultException<OrganizationServiceFault> fex)
-                {
-                    if (_errorHandler != null)
-                        _errorHandler.WriteLog(record.JobRecord, fex.StackTrace + "_" + fex.Message, EventLogEntryType.Error);
-                    runningJob.Failed++;
-                    HandleFualtException(fex, ref status);
-                    Console.WriteLine("Error: " + fex.Message + Environment.NewLine + fex.InnerException);
-                }
-                catch (Exception e)
-                {
-                    if (_errorHandler != null)
-                        _errorHandler.WriteLog(record.JobRecord, e.StackTrace + "_ex_" + e.ToString(), EventLogEntryType.Error);
+                        runningJob.Failed++;
+                        HandleUnHandeledExc(e, ref status);
+                        Console.WriteLine("Error: " + e.Message + Environment.NewLine + e.InnerException);
+                    }
+                    finally
+                    {
+                        UpdateRow(record, status, action);
+                    }
 
-                    runningJob.Failed++;
-                    HandleUnHandeledExc(e, ref status);
-                    Console.WriteLine("Error: " + e.Message + Environment.NewLine + e.InnerException);
+                    Console.WriteLine("ResultJob.Insert " + ResultJob.Insert);
+                    Console.WriteLine("ResultJob.Update " + ResultJob.Update);
                 }
-                finally
-                {
-                    UpdateRow(record, status, action);
-                }
-                Console.WriteLine("ResultJob.Insert " + ResultJob.Insert);
-                Console.WriteLine("ResultJob.Update " + ResultJob.Update);
-
             }
+            while (hasmore == true);
+            JobUtilHelper.UpdateBulkUpdate(runningJob.JobId.Value);
             Console.WriteLine("ExcuteRecords end ");
         }
 

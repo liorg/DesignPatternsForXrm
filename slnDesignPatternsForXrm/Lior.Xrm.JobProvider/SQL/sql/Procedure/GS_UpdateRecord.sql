@@ -1,16 +1,4 @@
-﻿USE [JobManager]
-GO
-/****** Object:  StoredProcedure [dbo].[GS_UpdateRecord]    Script Date: 22/09/2016 10:17:31 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
--- =============================================
--- Author:		<Author,,Name>
--- Create date: <Create Date,,>
--- Description:	<Description,,>
--- =============================================
-ALTER PROCEDURE [dbo].[GS_UpdateRecord]
+﻿ALTER PROCEDURE [dbo].[GS_UpdateRecord]
 	-- Add the parameters for the stored procedure here
 @status int,@recordid uniqueidentifier, @retry int=null
 ,@action nvarchar(200)=null, @ModelXml xml=null,@isDelSuccess bit=0
@@ -26,7 +14,9 @@ BEGIN
 	else
 	begin
 			UPDATE [dbo].[Records]
-			SET [StatusId] =@status
+			SET 
+			statusCode=@status
+			--[StatusId] =@status
 			  ,[ModifiedOn] = getdate()
 			  ,[Retry] = ISNULL(@retry,[Retry]) 
 			  ,[Action] = ISNULL(@action,[Action])

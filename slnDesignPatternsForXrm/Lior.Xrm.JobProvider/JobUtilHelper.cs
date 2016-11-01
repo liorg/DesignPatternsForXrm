@@ -123,13 +123,13 @@ namespace Lior.Xrm.JobsProvider.DataModel
         public static Guid? GetJobIdByJobName(CofigurationJob cofigurationJob)
         {
             Guid? jobid = null;
-
+            var jobname = GetFullJobNameByCofigurationJob(cofigurationJob);
             using (var connection = new SqlConnection(GetConectionString()))
             {
                 //SqlCommand command = new SqlCommand(@"dbo.GS_GetJobIdByJobName", connection);
                 SqlCommand command = new SqlCommand(@"dbo.GS_GetJobIdByName", connection);
 
-                command.Parameters.AddWithValue("@jobName", GetFullJobNameByCofigurationJob(cofigurationJob));
+                command.Parameters.AddWithValue("@jobName", jobname);
                 command.Parameters.AddWithValue("@MaxRetries", cofigurationJob.MaxRetries);
 
                 command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -184,6 +184,19 @@ namespace Lior.Xrm.JobsProvider.DataModel
                 command.Parameters.AddWithValue("@retry", retry);
                 command.Parameters.AddWithValue("@ModelXml", xmlObject);
                 command.Parameters.AddWithValue("@isDelSuccess", cofigurationJob.IsDeleteSuccessRows);
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public static void UpdateBulkUpdate(Guid jobid)
+        {
+            using (var connection = GetSqlConnection(GetConectionString()))
+            {
+                var command = new SqlCommand(@"dbo.GS_UpdateStatusBulkRecords", connection);
+                command.Parameters.AddWithValue("@JobId", jobid);
+
                 command.CommandType = System.Data.CommandType.StoredProcedure;
                 connection.Open();
                 command.ExecuteNonQuery();
