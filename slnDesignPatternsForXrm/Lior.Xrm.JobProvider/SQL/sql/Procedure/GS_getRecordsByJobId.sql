@@ -1,6 +1,6 @@
 ﻿USE [JobManager]
 GO
-/****** Object:  StoredProcedure [dbo].[GS_getRecordsByJobId]    Script Date: 31/10/2016 16:58:51 ******/
+/****** Object:  StoredProcedure [dbo].[GS_getRecordsByJobId]    Script Date: 09/11/2016 16:31:14 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -11,9 +11,9 @@ GO
 -- Description:	<Description,,>
 -- =============================================
 
---	exec [dbo].[GS_getRecordsByJobId] @JobId='25eeb0e0-2fb4-4456-9ae1-fa119a5ee4b8' ,@PageNumber=2,@RowspPage=3
+--	exec [dbo].[GS_getRecordsByJobId] @JobId='A71DBADC-1DFF-4134-B71B-AB769C17B879' ,@PageNumber=1,@RowspPage=5000
 ALTER PROCEDURE [dbo].[GS_getRecordsByJobId]
-	@JobId uniqueidentifier,@PageNumber  int =2,@RowspPage int =5000 
+	@JobId uniqueidentifier,@PageNumber  int =1,@RowspPage int =5000 
 AS
 BEGIN
 	SET NOCOUNT ON;
@@ -27,14 +27,13 @@ BEGIN
 			R.ModelType
 	FROM dbo.Records R
 	INNER JOIN dbo.Jobs J
-	
-
 		ON R.JobId=J.JobId
-		inner join dbo.JobHistory jh
-		on jh.HistoryId=r.HistoryId or jh.HistoryId='00000000-0000-0000-0000-000000000000'
+	INNER JOIN dbo.JobHistory jh
+		ON jh.HistoryId=r.HistoryId or r.HistoryId='00000000-0000-0000-0000-000000000000'
 	WHERE R.JobId = @JobId AND 
-	R.Retry < J.MaxRetries 
-	AND (R.StatusId = 0 or R.StatusId = 4) and (jh.IsGetDataComplete=1 or jh.HistoryId='00000000-0000-0000-0000-000000000000')
+	(R.Retry < J.MaxRetries OR R.Retry IS NULL) AND
+	(R.StatusId = 0 or R.StatusId = 4 OR R.StatusId IS NULL) AND 
+	(jh.IsGetDataComplete=1 OR r.HistoryId='00000000-0000-0000-0000-000000000000')
 	order by CreatedOn
 OFFSET ((@PageNumber - 1) * @RowspPage) ROWS FETCH NEXT @RowspPage ROWS ONLY;
 END
