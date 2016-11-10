@@ -28,12 +28,12 @@ BEGIN
 	FROM dbo.Records R
 	INNER JOIN dbo.Jobs J
 		ON R.JobId=J.JobId
-	INNER JOIN dbo.JobHistory jh
-		ON jh.HistoryId=r.HistoryId or r.HistoryId='00000000-0000-0000-0000-000000000000'
+	left JOIN dbo.JobHistory jh
+		ON jh.HistoryId=r.HistoryId 
 	WHERE R.JobId = @JobId AND 
 	(R.Retry < J.MaxRetries OR R.Retry IS NULL) AND
 	(R.StatusId = 0 or R.StatusId = 4 OR R.StatusId IS NULL) AND 
-	(jh.IsGetDataComplete=1 OR r.HistoryId='00000000-0000-0000-0000-000000000000')
+	((jh.HistoryId is not null and jh.IsGetDataComplete=1) OR r.HistoryId='00000000-0000-0000-0000-000000000000')
 	order by CreatedOn
 OFFSET ((@PageNumber - 1) * @RowspPage) ROWS FETCH NEXT @RowspPage ROWS ONLY;
 END
