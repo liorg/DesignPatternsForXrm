@@ -12,7 +12,7 @@ namespace Lior.Plugin.EmailSend
     public class EmailCrm
     {
         const string ValidTEXT = "lior_gr@malam.com";
-        const string API_KEY = "97f39c85e2894311b7ecc097491279bb";
+        const string API_KEY = "xxxx";
        
         IOrganizationService _service;
         EmailModel _emailModel;
