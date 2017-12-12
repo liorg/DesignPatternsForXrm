@@ -13,8 +13,7 @@ namespace Lior.Plugin.EmailSend
         [DataContract]
     public class EmailModel
     {
-        [DataMember]
-        public string api_key { get; set; }
+      
           
         [DataMember]
         public Message message { get; set; }
@@ -23,9 +22,11 @@ namespace Lior.Plugin.EmailSend
     [DataContract]
     public class Message
     {
-          
         [DataMember]
         public string from_email { get; set; }
+
+        [DataMember]
+        public string from_name { get; set; }
           
         [DataMember]
         public string html { get; set; }
@@ -36,16 +37,21 @@ namespace Lior.Plugin.EmailSend
         [DataMember]
         public List<to> to { get; set; }
 
+        [DataMember]
+        public string reply_to { get; set; }
+
+
+        [DataMember]
+        public string charset { get; set; }
+
+        [DataMember]
+        public string content_type { get; set; }
 
     }
     [DataContract]
     public class to
     { 
-        //   ""email"": "YYY@inwise.com",
-
-        //""name"": ""YYY"",
-
-        //""type"": ""to"" // Could be to/cc/bcc
+       
         [DataMember]
         public string email { get; set; }
         [DataMember]

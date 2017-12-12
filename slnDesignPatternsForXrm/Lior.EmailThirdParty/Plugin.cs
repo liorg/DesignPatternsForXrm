@@ -119,7 +119,7 @@ namespace Lior.Plugin.EmailSend
                 return this.registeredEvents;
             }
         }
-
+        protected string _unsecureString, _secureString="";
         /// <summary>
         /// Gets or sets the name of the child class.
         /// </summary>
@@ -140,6 +140,10 @@ namespace Lior.Plugin.EmailSend
             this.ChildClassName = childClassName.ToString();
         }
 
+        internal Plugin(Type childClassName,string unsecureString, string secureString)
+        {
+            _unsecureString = unsecureString; _secureString = secureString;
+        }
         /// <summary>
         /// Executes the plug-in.
         /// </summary>

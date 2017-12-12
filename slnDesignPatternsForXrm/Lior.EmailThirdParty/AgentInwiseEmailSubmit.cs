@@ -10,26 +10,24 @@ using System.Threading.Tasks;
 
 namespace Lior.Plugin.EmailSend
 {
-    public class AgentEmailSubmit: IAgentSend
+    public class AgentInwiseEmailSubmit : IAgentSend
     {
-       
-
         public void Send(ITracingService log, ConfigEmail config, EmailModel emailModel)
         {
             using (MemoryStream stream1 = new MemoryStream())
             {
-                string json="",  response = "";
+                string response = "", json="";
                 try
                 {
                     DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(EmailModel));
                     ser.WriteObject(stream1, emailModel);
                     stream1.Position = 0;
                     StreamReader sr = new StreamReader(stream1);
-                    // var json = Encoding.UTF8.GetString(stream1.ToArray());
-                     json = sr.ReadToEnd();
+                    json = sr.ReadToEnd();
                    
                     HttpWebRequest request = (HttpWebRequest)WebRequest.Create(config.Url);
                     request.Method = "POST";
+                    request.Headers.Add("x-api-key", config.Api);
                     request.ContentType = "application/json";
                     request.Accept = "application/json";
               //      request.KeepAlive = true;
@@ -51,11 +49,12 @@ namespace Lior.Plugin.EmailSend
                         Console.Out.WriteLine(response);
                         responseReader.Close();
                     }
-                    log.Trace("demo:::request={0} ,resposne={1}", json, response);
+                    log.Trace("inwise::request={0} ,resposne={1}", json,response);
                 }
 
                 catch (Exception e1)
                 {
+                 
                     throw new InvalidPluginExecutionException(e1.Message);
                 }
             }

@@ -11,16 +11,18 @@ namespace Lior.Plugin.EmailSend
 {
     public class EmailCrm
     {
-        const string ValidTEXT = "lior_gr@malam.com";
-        const string API_KEY = "xxxx";
-       
+        const string HTML = "html";
+        const string UTF8 = "utf-8";
         IOrganizationService _service;
-        EmailModel _emailModel;
-        public EmailCrm(IOrganizationService service, EmailModel emailModel)
+        EmailModel _emailModel; ConfigEmail _configemail;
+        public EmailCrm(IOrganizationService service, EmailModel emailModel, ConfigEmail configemail)
         {
             _service = service;
             _emailModel = emailModel;
-            _emailModel.api_key = API_KEY;
+            _emailModel.message.content_type = HTML;
+            _emailModel.message.charset = UTF8;
+            _emailModel.message.from_email = configemail.FromEmail;
+            _configemail = configemail;
         }
         /// <summary>
         /// 
@@ -37,7 +39,7 @@ namespace Lior.Plugin.EmailSend
             _emailModel.message.html = email.GetAttributeValue<string>("description");
             _emailModel.message.subject = email.GetAttributeValue<string>("subject");
 
-            issueEmail= GetFrom(email);
+            issueEmail = GetFrom(email);
             if (issueEmail)
                 return issueEmailFlag;
 
@@ -59,22 +61,27 @@ namespace Lior.Plugin.EmailSend
         bool GetFrom(Entity email)
         {
             var from = email.GetAttributeValue<EntityCollection>("from");
-
             if (from != null & from.Entities != null & from.Entities.Any())
             {
                 var emailsend = from.Entities.FirstOrDefault();
                 var fromPartyId = emailsend.GetAttributeValue<EntityReference>("partyid");
-                string[] fromEmailFieldsNames = null;
-                var entityFrom = GetEntityByParyId(fromPartyId, out fromEmailFieldsNames);
+
+                var emailFieldsNames = MetadataEmails.GetEmails(_service, fromPartyId.LogicalName);
+                if (emailFieldsNames == null)
+                    return true;
+               
+                var entityFrom = _service.Retrieve(fromPartyId.LogicalName, fromPartyId.Id, new ColumnSet(emailFieldsNames));
 
                 if (entityFrom == null)
                     return true;
-                foreach (var fieldsName in fromEmailFieldsNames)
+                foreach (var fieldsName in emailFieldsNames)
                 {
                     var emailaddress = entityFrom.GetAttributeValue<string>(fieldsName);
-                    if (!String.IsNullOrWhiteSpace(emailaddress))
+                    var fullname = entityFrom.GetAttributeValue<string>("fullname");
+                    if (!String.IsNullOrWhiteSpace(emailaddress) && emailaddress==_configemail.ReplyEmail)
                     {
-                        _emailModel.message.from_email = emailaddress;
+                        _emailModel.message.from_name = fullname;
+                        _emailModel.message.reply_to = emailaddress;
                         return false;
                     }
                 }
@@ -115,8 +122,16 @@ namespace Lior.Plugin.EmailSend
                         var emailaddress = entityTo.GetAttributeValue<string>(fieldsName);
                         if (!String.IsNullOrWhiteSpace(emailaddress))
                         {
-                            if (emailaddress.Contains(ValidTEXT))
-                                issueSend = false;
+                            if (_configemail.IsReverse)
+                            {
+                                if (emailaddress.Contains(_configemail.TextChecked))// if (!emailaddress.Contains(ValidTEXT))
+                                    issueSend = false;
+                            }
+                            else
+                            {
+                                if (!emailaddress.Contains(_configemail.TextChecked))// if (!emailaddress.Contains(ValidTEXT))
+                                    issueSend = false;
+                            }
                             _emailModel.message.to.Add(new to
                             {
                                 email = emailaddress,
@@ -139,7 +154,6 @@ namespace Lior.Plugin.EmailSend
             var entityFrom = _service.Retrieve(partyid.LogicalName, partyid.Id, new ColumnSet(emailFieldsNames));
             return entityFrom;
         }
-
 
     }
 }
