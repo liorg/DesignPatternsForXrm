@@ -39,6 +39,9 @@ namespace Lior.Plugin.EmailSend
             _emailModel.message.html = email.GetAttributeValue<string>("description");
             _emailModel.message.subject = email.GetAttributeValue<string>("subject");
 
+
+
+
             issueEmail = GetFrom(email);
             if (issueEmail)
                 return issueEmailFlag;
@@ -77,10 +80,9 @@ namespace Lior.Plugin.EmailSend
                 foreach (var fieldsName in emailFieldsNames)
                 {
                     var emailaddress = entityFrom.GetAttributeValue<string>(fieldsName);
-                    var fullname = entityFrom.GetAttributeValue<string>("fullname");
                     if (!String.IsNullOrWhiteSpace(emailaddress) && emailaddress==_configemail.ReplyEmail)
                     {
-                        _emailModel.message.from_name = fullname;
+                        _emailModel.message.from_name = _configemail.ReplayLabel; 
                         _emailModel.message.reply_to = emailaddress;
                         return false;
                     }
@@ -89,6 +91,35 @@ namespace Lior.Plugin.EmailSend
             }
             else
                 return true;
+        }
+
+        void SetAttachments(Entity email)
+        {
+            var fecthXml = @"<fetch version='1.0' output-format='xml-platform' mapping='logical' distinct='false'>
+                            <entity name='activitymimeattachment'>
+                                <attribute name='filename' />  
+                                <attribute name='body' /> 
+                                <attribute name='mimetype' /> 
+                    <link-entity name='email' alias='ab' to='objectid' from='activityid'>
+                    <filter type='and'><condition attribute='activityid' operator='eq'  value='" + email.Id.ToString() + "' /></filter></link-entity></entity></fetch>";
+
+            EntityCollection result = _service.RetrieveMultiple(new FetchExpression(fecthXml));
+            if (result != null && result.Entities != null && result.Entities.Any())
+            {
+                _emailModel.message.attachments = new List<attachment>();
+                foreach (var c in result.Entities)
+                {
+                    var mimetype = c.Attributes["mimetype"].ToString();
+                    var filename = c.Attributes["filename"].ToString();
+                    var documentbody = c.Attributes["body"].ToString();
+                    _emailModel.message.attachments.Add(new attachment
+                    {
+                        content = documentbody,
+                        name = filename,
+                        type = mimetype
+                    });
+                }
+            }
         }
         /// <summary>
         /// 

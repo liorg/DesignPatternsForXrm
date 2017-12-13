@@ -47,6 +47,8 @@ namespace Lior.Plugin.EmailSend
         [DataMember]
         public string content_type { get; set; }
 
+        [DataMember]
+        public List<attachment> attachments { get; set; }
     }
     [DataContract]
     public class to
@@ -62,5 +64,18 @@ namespace Lior.Plugin.EmailSend
        
 
     }
+    [DataContract]
+    public class attachment
+    {
 
+        [DataMember]
+        public string content { get; set; }
+        [DataMember]
+        public string type { get; set; }
+
+        [DataMember]
+        public string name { get; set; }
+
+
+    }
 }
